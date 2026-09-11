@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://sky.blackbaudcdn.net; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.blackbaud.com https://*.blackbaudcloud.com; img-src 'self' data:; frame-ancestors https://*.blackbaud.com https://*.blackbaudcloud.com https://*.blackbaudhosting.com;">
+<title>EWMC 2027 — Sponsorship Scoreboard</title>
+<script src="https://sky.blackbaudcdn.net/static/sky-addin-client/1/sky-addin-client.umd.min.js"></script>
+<style>
+  :root{
+    --ink:#1c2330; --ink-soft:#5a6472; --parchment:#f7f4ee; --card:#fffdf9;
+    --line:#e4ddd0; --gold:#a9852f; --gold-soft:#f2e9d4;
+    --edit:#1b6fb3; --edit-bg:#eaf3fb; --re:#c98a3a; --re-bg:#fbf2e6;
+    --good:#2f7d54; --warn:#b06a1b; --dead:#9a3838; --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:var(--parchment);padding:20px;line-height:1.45;}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+  .tile{max-width:1240px;margin:0 auto;}
+
+  .head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:16px;}
+  .eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:600;margin:0 0 2px;}
+  .title{font-family:ui-serif,Georgia,"Times New Roman",serif;font-weight:600;font-size:29px;line-height:1.05;margin:0;}
+  .title em{font-style:italic;font-weight:400;}
+  .sample{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--warn);background:#fdf3e4;border:1px solid #f0dcc0;padding:4px 9px;border-radius:999px;}
+  .sample::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--warn);}
+
+  .section-label{font-family:ui-serif,Georgia,"Times New Roman",serif;font-size:16px;font-weight:600;margin:36px 0 14px;padding-top:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:relative;border-top:2px solid var(--ink);}
+  .section-label::before{content:"";position:absolute;top:-2px;left:0;width:78px;height:2px;background:var(--gold);}
+  .section-label::after{content:"◆";position:absolute;top:-11px;left:84px;font-size:10px;color:var(--gold);background:var(--parchment);padding:0 5px;}
+  .section-label span{font-size:11px;font-weight:600;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--ink-soft);letter-spacing:.03em;}
+
+  /* ---------- GOAL HERO ---------- */
+  .hero{background:linear-gradient(135deg,#1c2330,#2b3547);color:#fff;border-radius:14px;padding:20px 24px;box-shadow:0 4px 18px rgba(28,35,48,.18);}
+  .hero .htop{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:14px;}
+  .hero .hlbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#aeb8c6;font-weight:600;margin-bottom:4px;}
+  .hero .hbig{font-family:ui-serif,Georgia,"Times New Roman",serif;font-size:40px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums;}
+  .hero .hof{font-size:17px;color:#9aa5b4;font-weight:400;}
+  .hero .hpct{font-family:ui-serif,Georgia,"Times New Roman",serif;font-size:40px;font-weight:600;color:var(--gold);line-height:1;}
+  .hero .hpct small{display:block;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#8f9bab;text-align:right;font-weight:600;margin-top:2px;}
+  .hbar{height:12px;background:rgba(255,255,255,.12);border-radius:999px;overflow:hidden;}
+  .hbar span{display:block;height:100%;background:linear-gradient(90deg,var(--gold),#d8b45e);width:0;transition:width .6s;}
+  .hbar.proj{height:5px;margin-top:5px;background:transparent;}
+  .hbar.proj span{background:repeating-linear-gradient(90deg,#d8b45e 0 6px,transparent 6px 11px);opacity:.75;}
+  .hsub{display:flex;justify-content:space-between;font-size:12px;color:#aeb8c6;margin-top:10px;flex-wrap:wrap;gap:8px;}
+  .hsub b{color:#eef1f5;font-variant-numeric:tabular-nums;}
+  .hsub .maps{color:#8f9bab;font-style:italic;}
+
+  /* ---------- STATEMENT ---------- */
+  .stmt{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;}
+  .grp{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;}
+  .grp .ghd{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:8px;padding-bottom:7px;border-bottom:1px solid var(--line);}
+  .li{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:4px 0;font-size:13px;}
+  .li span{color:var(--ink-soft);}
+  .li b{font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;}
+  .grp.attn{border-color:#e7c9c1;background:#fdf5f3;}
+  .grp.attn .ghd{color:var(--dead);border-color:#eecfc8;}
+  .grp.attn .li span{color:#7e4a41;}
+  .grp.attn .li b{color:var(--dead);}
+  .grp.totals{background:#1c2330;border-color:#1c2330;}
+  .grp.totals .ghd{color:var(--gold);border-color:rgba(255,255,255,.15);}
+  .grp.totals .li span{color:#b9c2cf;}
+  .grp.totals .li b{color:#fff;font-size:15px;}
+  .grp.goal .ghd{color:var(--ink-soft);}
+  .li.maps span::after{content:" · maps to RE later";color:#b3ab99;font-style:italic;font-size:11px;}
+
+  /* ---------- OFFICIAL SPONSORS ---------- */
+  .sptotal{display:inline-flex;gap:8px;align-items:baseline;font-size:12px;color:var(--ink-soft);}
+  .sptotal b{font-family:ui-serif,Georgia,"Times New Roman",serif;font-size:15px;color:var(--gold);}
+  .sponsors{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;}
+  .scol{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;}
+  .scol h3{font-size:12.5px;margin:0 0 8px;font-weight:600;display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding-bottom:6px;border-bottom:1px solid var(--line);}
+  .scol h3 .cnt{font-size:11px;color:var(--ink-soft);font-weight:600;}
+  .scol .tieramt{font-size:10.5px;color:var(--gold);font-weight:600;margin:-4px 0 6px;}
+  .scol ul{margin:0;padding:0;list-style:none;font-size:12.5px;}
+  .scol li{padding:3px 0;border-bottom:1px dotted #ece5d6;}
+  .scol li:last-child{border-bottom:none;}
+  .scol .none{color:#b3ab99;font-style:italic;font-size:12px;}
+
+  /* ---------- ROSTER (tap to edit) ---------- */
+  .roster-cap{font-size:11.5px;color:var(--ink-soft);display:flex;align-items:center;gap:7px;margin-bottom:10px;}
+  .roster-cap .kbox{width:11px;height:11px;border-radius:3px;background:var(--edit-bg);border:1px solid var(--edit);display:inline-block;}
+  .roster{display:flex;flex-direction:column;gap:8px;}
+  .rcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
+  .rcard.open{border-color:#cfe0ef;box-shadow:0 2px 10px rgba(27,111,179,.08);}
+  .rc-summary{width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;background:none;border:none;cursor:pointer;text-align:left;font:inherit;}
+  .rc-summary:hover{background:#faf8f2;}
+  .rcard.open .rc-summary{background:#f3f7fb;}
+  .rc-left{display:flex;flex-direction:column;gap:2px;min-width:0;}
+  .rc-name{font-weight:600;color:var(--ink);font-size:14px;}
+  .rc-meta{font-size:12px;color:var(--ink-soft);}
+  .rc-right{display:flex;align-items:center;gap:11px;flex-shrink:0;}
+  .rc-amt{font-size:13px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;text-align:right;display:flex;flex-direction:column;line-height:1.15;}
+  .rc-amt small{font-size:8.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);}
+  .rc-chev{color:var(--ink-soft);font-size:18px;line-height:1;transition:transform .2s;}
+  .rcard.open .rc-chev{transform:rotate(90deg);color:var(--edit);}
+  .lk{font-size:10px;font-weight:600;padding:2px 7px;border-radius:999px;white-space:nowrap;}
+  .lk-Confirmed{background:#e2f0e8;color:var(--good);}
+  .lk-Speculative{background:#fbeede;color:var(--warn);}
+  .lk-Unlikely{background:#f2e6e6;color:var(--dead);}
+
+  .rc-editor{border-top:1px solid var(--line);padding:14px;background:#fcfaf6;}
+  .ep-context{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:9px 14px;padding:11px 13px;background:var(--re-bg);border:1px solid #f0e0cb;border-radius:8px;margin-bottom:15px;}
+  .ep-cx{display:flex;flex-direction:column;gap:1px;min-width:0;}
+  .ep-cx .l{font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:var(--re);font-weight:700;}
+  .ep-cx .v{font-size:12.5px;color:#6b4e28;font-weight:500;overflow-wrap:anywhere;}
+  .ep-note{font-size:10.5px;color:var(--re);font-style:italic;margin:-8px 0 14px;}
+  .ep-fields{display:flex;flex-direction:column;gap:12px;}
+  .ep-f{display:flex;flex-direction:column;gap:4px;}
+  .ep-f label{font-size:11px;font-weight:700;color:var(--edit);letter-spacing:.02em;text-transform:uppercase;}
+  .ep-f input,.ep-f select,.ep-f textarea{font:inherit;font-size:13px;color:var(--ink);background:#fff;border:1px solid #cfe0ef;border-radius:7px;padding:8px 10px;width:100%;}
+  .ep-f input:focus,.ep-f select:focus,.ep-f textarea:focus{outline:none;border-color:var(--edit);box-shadow:0 0 0 3px rgba(27,111,179,.14);}
+  .ep-f textarea{resize:vertical;min-height:54px;}
+  .ep-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;}
+  .ep-cancel{font:inherit;font-size:13px;font-weight:600;color:var(--ink-soft);background:none;border:1px solid var(--line);border-radius:8px;padding:8px 14px;cursor:pointer;}
+  .ep-cancel:hover{background:#f0ece3;}
+  .ep-save{font:inherit;font-size:13px;font-weight:600;color:#fff;background:var(--edit);border:none;border-radius:8px;padding:8px 16px;cursor:pointer;}
+  .ep-save:hover{background:#155a93;}
+
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:11px 18px;border-radius:9px;font-size:13px;font-weight:500;opacity:0;pointer-events:none;transition:all .3s;box-shadow:0 8px 24px rgba(0,0,0,.22);max-width:90vw;z-index:50;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast code{background:rgba(255,255,255,.15);padding:1px 5px;border-radius:4px;}
+
+  .filters{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
+  .filters input,.filters select{font:inherit;font-size:13px;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 10px;}
+  .filters input{flex:1 1 170px;min-width:0;}
+  .filters input:focus,.filters select:focus{outline:none;border-color:var(--edit);box-shadow:0 0 0 3px rgba(27,111,179,.12);}
+  .filters #f-clear{cursor:pointer;color:var(--ink-soft);font-weight:600;background:none;}
+  .filters #f-clear:hover{background:#f0ece3;}
+  .roster-count{font-size:11.5px;color:var(--ink-soft);margin-bottom:8px;font-variant-numeric:tabular-nums;}
+  .roster-more{margin-top:10px;}
+  .roster-more button{font:inherit;font-size:13px;font-weight:600;color:var(--edit);background:#fff;border:1px solid #cfe0ef;border-radius:8px;padding:10px 18px;cursor:pointer;width:100%;}
+  .roster-more button:hover{background:var(--edit-bg);}
+  .roster-empty{padding:22px;text-align:center;color:var(--ink-soft);font-size:13px;font-style:italic;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);}
+
+  /* Narrow-column mode */
+  @media (max-width:720px){
+    body{padding:12px;}
+    .head{margin-bottom:12px;}
+    .title{font-size:23px;}
+    .hero{padding:15px 17px;}
+    .hero .htop{margin-bottom:11px;}
+    .hero .hbig{font-size:29px;}
+    .hero .hof{font-size:15px;}
+    .hero .hpct{font-size:29px;}
+    .hero .hsub{font-size:11px;}
+    .section-label{font-size:15px;margin:26px 0 11px;}
+    .stmt{grid-template-columns:1fr;}
+    .sponsors{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;}
+    .ep-context{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="tile">
+
+  <div class="head">
+    <div>
+      <p class="eyebrow">Campaign 27-EWMC · Sponsorship Scoreboard</p>
+      <h1 class="title">EWMC <em>2027</em> — an Evening with Mackinac Center</h1>
+    </div>
+    <span class="sample">Sample data — invented rows, not your live EWMC constituents</span>
+  </div>
+
+  <!-- GOAL HERO -->
+  <div class="hero">
+    <div class="htop">
+      <div>
+        <div class="hlbl">Raised toward event goal</div>
+        <div class="hbig"><span id="g-in">$0</span> <span class="hof">of <span id="g-goal">$500,000</span></span></div>
+      </div>
+      <div class="hpct"><span id="g-pct">0%</span><small>in the door</small></div>
+    </div>
+    <div class="hbar"><span id="g-bar"></span></div>
+    <div class="hbar proj"><span id="g-barproj"></span></div>
+    <div class="hsub">
+      <span><b id="g-proj">$0</b> projected if speculative asks land (<span id="g-ppct">0%</span>)</span>
+      <span class="maps">Goal maps to Raiser's Edge later</span>
+    </div>
+  </div>
+
+  <!-- FINANCIAL STATEMENT -->
+  <div class="section-label">Financial Summary <span>· grouped the way the Overview sheet reads · recomputes live</span></div>
+  <div class="stmt">
+    <div class="grp">
+      <div class="ghd">Sponsorships</div>
+      <div class="li"><span>Projected + In</span><b id="f-proj">$0</b></div>
+      <div class="li"><span>Money In — in the door</span><b id="f-in">$0</b></div>
+    </div>
+    <div class="grp">
+      <div class="ghd">Other Income</div>
+      <div class="li"><span>Additional Donations</span><b id="f-add">$0</b></div>
+      <div class="li"><span>Ticket Sales</span><b id="f-tix">$0</b></div>
+    </div>
+    <div class="grp attn">
+      <div class="ghd">⚠ Needs Attention</div>
+      <div class="li"><span>Money in, not yet counted — untagged or unconfirmed</span><b id="f-attn">$0</b></div>
+    </div>
+    <div class="grp totals">
+      <div class="ghd">Totals</div>
+      <div class="li"><span>Total Raised — actually in</span><b id="f-total">$0</b></div>
+      <div class="li"><span>Projected &amp; Money In</span><b id="f-ptotal">$0</b></div>
+    </div>
+    <div class="grp goal">
+      <div class="ghd">Vs. Goal</div>
+      <div class="li maps"><span>Event Goal</span><b id="f-goal">$500,000</b></div>
+      <div class="li"><span>Deficit / Surplus</span><b id="f-def">$0</b></div>
+      <div class="li"><span>Projected Deficit / Surplus</span><b id="f-pdef">$0</b></div>
+    </div>
+  </div>
+
+  <!-- OFFICIAL SPONSORS -->
+  <div class="section-label">Official Sponsors
+    <span class="sptotal"><b id="sp-count">0</b> official sponsors · <b id="sp-amt">$0</b> confirmed</span>
+  </div>
+  <div class="sponsors" id="sponsors"></div>
+
+  <!-- ROSTER -->
+  <div class="section-label">Sponsorship Dashboard <span>· tap a sponsor to edit</span></div>
+  <div class="roster-cap"><span class="kbox"></span> Tapping a card opens its editable (blue) fields — Save writes them back to RE. Context in orange is read-only from RE.</div>
+  <div class="filters">
+    <input id="f-search" type="search" placeholder="Search sponsor name…">
+    <select id="f-fund"><option value="">All fundraisers</option></select>
+    <select id="f-lk"><option value="">All likelihoods</option><option>Confirmed</option><option>Speculative</option><option>Unlikely</option></select>
+    <button id="f-clear" type="button" hidden>Clear</button>
+  </div>
+  <div class="roster-count" id="roster-count"></div>
+  <div class="roster" id="roster"></div>
+  <div class="roster-more" id="roster-more" hidden></div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const TIERS=["Presenting Sponsor ($200k)","Sacred Honor ($100k)","Patriot ($50k)","Liberty ($25k)","Freedom ($10k)","Justice ($5k)","Additional Donation"];
+const TIER_AMT={"Presenting Sponsor ($200k)":200000,"Sacred Honor ($100k)":100000,"Patriot ($50k)":50000,"Liberty ($25k)":25000,"Freedom ($10k)":10000,"Justice ($5k)":5000,"Additional Donation":0};
+const LIKELIHOOD=["","Confirmed","Speculative","Unlikely"];
+const YESNO=["","Yes","No"];
+const GOAL=500000, TICKETS=42000;
+
+// blue = editable (writes back to RE)
+const BLUE=[
+  {k:"tgt",  t:"Target Sponsorship Level", type:"tier"},
+  {k:"lk",   t:"Sponsorship Likelihood",   type:"lk"},
+  {k:"lvl",  t:"Sponsorship Level",        type:"tier"},
+  {k:"samt", t:"Sponsorship Amount",       type:"money"},
+  {k:"sname",t:"Sponsoring Name",          type:"text"},
+  {k:"inv",  t:"Invoice Created",          type:"yn"},
+  {k:"guests",t:"Projected # Guests",      type:"num"},
+  {k:"notes",t:"Additional Notes",         type:"textarea"},
+];
+// orange = read-only context from RE
+const ORANGE=[
+  {k:"pc",t:"Primary Contact"},{k:"fund",t:"Assigned Fundraiser"},
+  {k:"fa",t:"First Action"},{k:"ra",t:"Most Recent Action"},
+  {k:"pd",t:"Proposal Date"},{k:"pa",t:"Proposal Amount",money:true},
+  {k:"ps",t:"Proposal Status"},{k:"who",t:"Who Made Ask"},
+  {k:"pledge",t:"Pledge Amount",money:true},{k:"door",t:"Amount in Door",money:true},
+];
+
+const data=[
+  {cid:"85001",name:"Summit Steel Co.",pc:"J. Panning",fund:"Dana W.",tgt:"Presenting Sponsor ($200k)",fa:"Jun 03",ra:"Aug 20",pd:"Jun 10",pa:200000,ps:"Committed",who:"Dana W.",lk:"Confirmed",lvl:"Presenting Sponsor ($200k)",samt:200000,sname:"Summit Steel",pledge:0,door:200000,inv:"Yes",guests:20,notes:""},
+  {cid:"85002",name:"Lakeside Holdings",pc:"A. Bookless",fund:"Marcus L.",tgt:"Sacred Honor ($100k)",fa:"May 28",ra:"Aug 18",pd:"Jun 12",pa:100000,ps:"Committed",who:"Marcus L.",lk:"Confirmed",lvl:"Sacred Honor ($100k)",samt:100000,sname:"",pledge:0,door:100000,inv:"Yes",guests:10,notes:""},
+  {cid:"85003",name:"Rivertown Bank",pc:"N. Irrer",fund:"Priya S.",tgt:"Patriot ($50k)",fa:"Jun 15",ra:"Aug 25",pd:"Jul 01",pa:50000,ps:"Pending (Ask Made)",who:"Priya S.",lk:"Speculative",lvl:"",samt:50000,sname:"",pledge:0,door:0,inv:"",guests:0,notes:"awaiting board vote"},
+  {cid:"85004",name:"Evergreen Foundation",pc:"R. Haworth",fund:"Dana W.",tgt:"Liberty ($25k)",fa:"May 20",ra:"Aug 15",pd:"Jun 08",pa:25000,ps:"Committed - Pledge",who:"Dana W.",lk:"Confirmed",lvl:"Liberty ($25k)",samt:25000,sname:"Evergreen Fdn.",pledge:15000,door:10000,inv:"Yes",guests:8,notes:"two installments"},
+  {cid:"85005",name:"Copperline LLC",pc:"",fund:"Marcus L.",tgt:"Freedom ($10k)",fa:"Jul 02",ra:"Aug 05",pd:"",pa:0,ps:"",who:"",lk:"Unlikely",lvl:"",samt:0,sname:"",pledge:0,door:0,inv:"",guests:0,notes:""},
+  {cid:"85006",name:"Meridian Group",pc:"K. Mauren",fund:"Priya S.",tgt:"Justice ($5k)",fa:"Jun 22",ra:"Aug 12",pd:"Jul 05",pa:5000,ps:"Committed",who:"Priya S.",lk:"Confirmed",lvl:"Justice ($5k)",samt:5000,sname:"",pledge:0,door:5000,inv:"Yes",guests:4,notes:""},
+  {cid:"85007",name:"Anonymous Friend",pc:"",fund:"Marcus L.",tgt:"Additional Donation",fa:"Aug 01",ra:"Aug 19",pd:"",pa:0,ps:"",who:"",lk:"Confirmed",lvl:"Additional Donation",samt:0,sname:"",pledge:0,door:15000,inv:"",guests:0,notes:"gala appeal gift"},
+  {cid:"85008",name:"Northgate Partners",pc:"D. Barker",fund:"Dana W.",tgt:"Liberty ($25k)",fa:"Jul 18",ra:"Aug 22",pd:"",pa:0,ps:"",who:"",lk:"Speculative",lvl:"",samt:0,sname:"",pledge:0,door:10000,inv:"",guests:0,notes:"arrived, not matched to a sponsor"},
+];
+
+const num=v=>Number(String(v??"").replace(/[^0-9.\-]/g,""))||0;
+const usd=n=>"$"+Math.round(n).toLocaleString("en-US");
+const esc=s=>String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+function isOfficial(r){return r.lk==="Confirmed" && r.lvl!=="" && r.lvl!=="Additional Donation";}
+
+function recompute(){
+  let proj=0,inDoor=0,addl=0,attn=0,offCount=0,offAmt=0;
+  data.forEach(r=>{
+    const door=num(r.door),samt=num(r.samt);
+    const confirmed=r.lk==="Confirmed",hasLvl=r.lvl!=="",isAddl=r.lvl==="Additional Donation";
+    if(confirmed&&hasLvl&&!isAddl){proj+=Math.max(samt,door);inDoor+=door;}
+    if(isAddl){addl+=door;}
+    if(door>0&&!isAddl&&(!hasLvl||!confirmed)){attn+=door;}
+    if(isOfficial(r)){offCount++;offAmt+=Math.max(samt,TIER_AMT[r.lvl]||0);}
+  });
+  const total=inDoor+addl+TICKETS, ptotal=proj+addl+TICKETS;
+  const def=total-GOAL, pdef=ptotal-GOAL;
+  const S=(id,v)=>document.getElementById(id).textContent=v;
+  S("f-proj",usd(proj));S("f-in",usd(inDoor));S("f-add",usd(addl));S("f-attn",usd(attn));
+  S("f-tix",usd(TICKETS));S("f-total",usd(total));S("f-ptotal",usd(ptotal));S("f-goal",usd(GOAL));
+  S("f-def",(def<0?"−":"+")+usd(Math.abs(def)));
+  S("f-pdef",(pdef<0?"−":"+")+usd(Math.abs(pdef)));
+  document.getElementById("f-def").style.color=def<0?"var(--dead)":"var(--good)";
+  document.getElementById("f-pdef").style.color=pdef<0?"var(--dead)":"var(--good)";
+  const pct=Math.min(100,Math.round(total/GOAL*100)),ppct=Math.min(100,Math.round(ptotal/GOAL*100));
+  S("g-in",usd(total));S("g-proj",usd(ptotal));S("g-goal",usd(GOAL));S("g-pct",pct+"%");S("g-ppct",ppct+"%");
+  document.getElementById("g-bar").style.width=pct+"%";
+  document.getElementById("g-barproj").style.width=ppct+"%";
+  S("sp-count",offCount);S("sp-amt",usd(offAmt));
+  renderSponsors();
+}
+
+function renderSponsors(){
+  const host=document.getElementById("sponsors");host.innerHTML="";
+  TIERS.forEach(t=>{
+    const rows=data.filter(r=>r.lvl===t&&r.lk==="Confirmed");
+    const names=rows.map(r=> r.sname&&r.sname.trim()?r.sname:r.name);
+    const div=document.createElement("div");div.className="scol";
+    const tierAmt=TIER_AMT[t]?usd(TIER_AMT[t]):"—";
+    div.innerHTML=`<h3><span>${t.replace(/\s*\(.*\)/,"")}</span><span class="cnt">${names.length}</span></h3>`+
+      `<div class="tieramt">${tierAmt} tier</div>`+
+      (names.length?"<ul>"+names.map(n=>`<li>${esc(n)}</li>`).join("")+"</ul>":`<div class="none">None yet</div>`);
+    host.appendChild(div);
+  });
+}
+
+/* ---------- roster of tap-to-edit cards ---------- */
+const PAGE=15;
+let fSearch="",fFund="",fLk="",shown=PAGE;
+function getFiltered(){
+  return data.map((r,i)=>({r,i})).filter(({r})=>{
+    if(fSearch && !((r.name||"").toLowerCase().includes(fSearch))) return false;
+    if(fFund && r.fund!==fFund) return false;
+    if(fLk && r.lk!==fLk) return false;
+    return true;
+  });
+}
+function populateFundraisers(){
+  const set=[...new Set(data.map(r=>r.fund).filter(Boolean))].sort();
+  const sel=document.getElementById("f-fund");
+  set.forEach(f=>{const o=document.createElement("option");o.value=f;o.textContent=f;sel.appendChild(o);});
+}
+function fieldInput(f,r){
+  const v=r[f.k], k=esc(f.k);
+  if(f.type==="tier") return `<select data-k="${k}"><option value=""></option>${TIERS.map(t=>`<option ${t===v?"selected":""}>${esc(t)}</option>`).join("")}</select>`;
+  if(f.type==="lk")   return `<select data-k="${k}">${LIKELIHOOD.map(t=>`<option value="${esc(t)}" ${t===v?"selected":""}>${esc(t||"—")}</option>`).join("")}</select>`;
+  if(f.type==="yn")   return `<select data-k="${k}">${YESNO.map(t=>`<option value="${esc(t)}" ${t===v?"selected":""}>${esc(t||"—")}</option>`).join("")}</select>`;
+  if(f.type==="money")return `<input data-k="${k}" type="text" inputmode="numeric" value="${esc(num(v)?usd(num(v)):"")}" placeholder="—">`;
+  if(f.type==="num")  return `<input data-k="${k}" type="text" inputmode="numeric" value="${esc(v||"")}" placeholder="—">`;
+  if(f.type==="textarea") return `<textarea data-k="${k}" placeholder="—">${esc(v)}</textarea>`;
+  return `<input data-k="${k}" type="text" value="${esc(v)}" placeholder="—">`;
+}
+
+function buildEditor(i){
+  const r=data[i];
+  const cx=ORANGE.map(f=>{
+    let v=r[f.k]; v=f.money?(num(v)?usd(num(v)):"—"):((v===""||v==null)?"—":v);
+    return `<div class="ep-cx"><span class="l">${f.t}</span><span class="v">${esc(v)}</span></div>`;
+  }).join("");
+  const fields=BLUE.map(f=>`<div class="ep-f"><label>${f.t}</label>${fieldInput(f,r)}</div>`).join("");
+  return `<div class="ep-context">${cx}</div>`+
+         `<div class="ep-note">↑ read-only from RE · fields below write back</div>`+
+         `<div class="ep-fields">${fields}</div>`+
+         `<div class="ep-foot"><button class="ep-cancel" type="button">Cancel</button><button class="ep-save" type="button">Save changes</button></div>`;
+}
+
+function closeAll(){
+  document.querySelectorAll(".rcard.open").forEach(c=>{
+    c.classList.remove("open");
+    const ed=c.querySelector(".rc-editor"); ed.hidden=true; ed.innerHTML="";
+    c.querySelector(".rc-summary").setAttribute("aria-expanded","false");
+  });
+}
+
+function renderRoster(keepOpen){
+  const host=document.getElementById("roster");host.innerHTML="";
+  const all=getFiltered();
+  const anyFilter=fSearch||fFund||fLk;
+  const showing=Math.min(shown,all.length);
+  document.getElementById("roster-count").textContent = anyFilter
+    ? `${all.length} match${all.length===1?"":"es"} of ${data.length} · showing ${showing}`
+    : (all.length>shown ? `Showing ${showing} of ${data.length} sponsors` : `${data.length} sponsors`);
+  document.getElementById("f-clear").hidden=!anyFilter;
+  if(all.length===0){host.innerHTML=`<div class="roster-empty">No sponsors match those filters.</div>`;document.getElementById("roster-more").hidden=true;return;}
+  all.slice(0,shown).forEach(({r,i})=>{
+    const card=document.createElement("div");card.className="rcard";
+    const tierLabel=(r.lvl||r.tgt||"—").replace(/\s*\(.*\)/,"");
+    const doorTxt=num(r.door)?usd(num(r.door)):"—";
+    card.innerHTML=`
+      <button class="rc-summary" aria-expanded="false">
+        <span class="rc-left">
+          <span class="rc-name">${esc(r.name)}</span>
+          <span class="rc-meta">${esc(tierLabel)}${r.fund?" · "+esc(r.fund):""}</span>
+        </span>
+        <span class="rc-right">
+          ${r.lk?`<span class="lk lk-${r.lk}">${r.lk}</span>`:""}
+          <span class="rc-amt">${doorTxt}<small>in door</small></span>
+          <span class="rc-chev">›</span>
+        </span>
+      </button>
+      <div class="rc-editor" hidden></div>`;
+    host.appendChild(card);
+    const btn=card.querySelector(".rc-summary");
+    const ed=card.querySelector(".rc-editor");
+    btn.addEventListener("click",()=>{
+      const wasOpen=card.classList.contains("open");
+      closeAll();
+      if(wasOpen) return;
+      ed.innerHTML=buildEditor(i);ed.hidden=false;
+      card.classList.add("open");btn.setAttribute("aria-expanded","true");
+      ed.querySelector(".ep-cancel").addEventListener("click",closeAll);
+      ed.querySelector(".ep-save").addEventListener("click",()=>{
+        ed.querySelectorAll("[data-k]").forEach(inp=>{
+          const k=inp.dataset.k, f=BLUE.find(b=>b.k===k);
+          let val=inp.value;
+          if(f.type==="money"||f.type==="num") val=num(val);
+          data[i][k]=val;
+        });
+        recompute();
+        toast(`Would <code>POST</code> ${esc(data[i].name)}'s updated fields to your Power Automate flow`);
+        renderRoster(i);
+      });
+    });
+  });
+  const more=document.getElementById("roster-more");
+  if(all.length>shown){
+    more.hidden=false;
+    more.innerHTML=`<button type="button">Show ${Math.min(PAGE,all.length-shown)} more (${all.length-shown} remaining)</button>`;
+    more.querySelector("button").addEventListener("click",()=>{shown+=PAGE;renderRoster();});
+  } else { more.hidden=true; more.innerHTML=""; }
+  if(keepOpen!=null){
+    const cards=host.querySelectorAll(".rcard");
+    const vis=getFiltered().slice(0,shown);
+    const pos=vis.findIndex(({i})=>i===keepOpen);
+    if(pos>-1 && cards[pos]) cards[pos].querySelector(".rc-summary").click();
+  }
+}
+
+function toast(m){const t=document.getElementById("toast");t.innerHTML=m;t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),3600);}
+
+populateFundraisers();
+document.getElementById("f-search").addEventListener("input",e=>{fSearch=e.target.value.trim().toLowerCase();shown=PAGE;renderRoster();});
+document.getElementById("f-fund").addEventListener("change",e=>{fFund=e.target.value;shown=PAGE;renderRoster();});
+document.getElementById("f-lk").addEventListener("change",e=>{fLk=e.target.value;shown=PAGE;renderRoster();});
+document.getElementById("f-clear").addEventListener("click",()=>{fSearch=fFund=fLk="";shown=PAGE;["f-search","f-fund","f-lk"].forEach(id=>document.getElementById(id).value="");renderRoster();});
+renderRoster();
+recompute();
+</script>
+<script>
+/* SKY Add-in handshake — required for RE to display the tile (and to size its iframe).
+   Runs only inside a Blackbaud host; opening the URL directly just skips it. */
+(function () {
+  if (typeof BBSkyAddinClient === "undefined" || !BBSkyAddinClient.AddinClient) return;
+  try {
+    window._bbAddin = new BBSkyAddinClient.AddinClient({
+      callbacks: {
+        init: function (args) {
+          args.ready({ showUI: true, title: "EWMC 2027 Scoreboard" });
+        }
+      },
+      allowedOrigins: [
+        /^https:\/\/[\w\-\.]+\.blackbaud\.com$/,
+        /^https:\/\/[\w\-\.]+\.blackbaudcloud\.com$/,
+        /^https:\/\/[\w\-\.]+\.blackbaudhosting\.com$/,
+        /^https:\/\/[\w\-\.]+\.blackbaud\.dev$/
+      ]
+    });
+  } catch (e) { /* not in a host context — render standalone */ }
+})();
+</script>
+</body>
+</html>
