@@ -76,6 +76,8 @@
   .scol li{padding:3px 0;border-bottom:1px dotted #ece5d6;}
   .scol li:last-child{border-bottom:none;}
   .scol .none{color:#b3ab99;font-style:italic;font-size:12px;}
+  .scol li.needs-names{color:var(--dead);}
+  .scol li .nn-flag{font-size:9px;letter-spacing:.03em;text-transform:uppercase;color:var(--dead);font-weight:700;margin-left:5px;opacity:.85;white-space:nowrap;}
 
   /* ---------- ROSTER (tap to edit) ---------- */
   .roster-cap{font-size:11.5px;color:var(--ink-soft);display:flex;align-items:center;gap:7px;margin-bottom:10px;}
@@ -96,8 +98,10 @@
   .rcard.open .rc-chev{transform:rotate(90deg);color:var(--edit);}
   .lk{font-size:10px;font-weight:600;padding:2px 7px;border-radius:999px;white-space:nowrap;}
   .lk-Confirmed{background:#e2f0e8;color:var(--good);}
+  .lk-NeedNames{background:#fbf0d8;color:#8a6d1b;}
   .lk-Speculative{background:#fbeede;color:var(--warn);}
   .lk-Unlikely{background:#f2e6e6;color:var(--dead);}
+  .lk-Declined{background:#eceae7;color:#7a7a7a;}
 
   .rc-editor{border-top:1px solid var(--line);padding:14px;background:#fcfaf6;}
   .ep-context{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:9px 14px;padding:11px 13px;background:var(--re-bg);border:1px solid #f0e0cb;border-radius:8px;margin-bottom:15px;}
@@ -221,7 +225,7 @@
   <div class="filters">
     <input id="f-search" type="search" placeholder="Search sponsor name…">
     <select id="f-fund"><option value="">All fundraisers</option></select>
-    <select id="f-lk"><option value="">All likelihoods</option><option>Confirmed</option><option>Speculative</option><option>Unlikely</option></select>
+    <select id="f-lk"><option value="">All likelihoods</option><option>Confirmed</option><option>Confirmed - Need Guest Names</option><option>Speculative</option><option>Unlikely</option><option>Declined</option></select>
     <button id="f-clear" type="button" hidden>Clear</button>
   </div>
   <div class="roster-count" id="roster-count"></div>
@@ -234,7 +238,11 @@
 <script>
 const TIERS=["Presenting Sponsor ($200k)","Sacred Honor ($100k)","Patriot ($50k)","Liberty ($25k)","Freedom ($10k)","Justice ($5k)","Additional Donation"];
 const TIER_AMT={"Presenting Sponsor ($200k)":200000,"Sacred Honor ($100k)":100000,"Patriot ($50k)":50000,"Liberty ($25k)":25000,"Freedom ($10k)":10000,"Justice ($5k)":5000,"Additional Donation":0};
-const LIKELIHOOD=["","Confirmed","Speculative","Unlikely"];
+const LIKELIHOOD=["","Confirmed","Confirmed - Need Guest Names","Speculative","Unlikely","Declined"];
+// maps each likelihood to a safe CSS class suffix (values have spaces/hyphens, so can't be used as class names directly)
+const LK_CLASS={"Confirmed":"Confirmed","Confirmed - Need Guest Names":"NeedNames","Speculative":"Speculative","Unlikely":"Unlikely","Declined":"Declined"};
+// shorter labels for the compact roster badge (full value is still what's stored/written back)
+const LK_SHORT={"Confirmed":"Confirmed","Confirmed - Need Guest Names":"Need names","Speculative":"Speculative","Unlikely":"Unlikely","Declined":"Declined"};
 const YESNO=["","Yes","No"];
 const GOAL=500000, TICKETS=42000;
 
@@ -260,10 +268,10 @@ const ORANGE=[
 
 const data=[
   {cid:"85001",name:"Summit Steel Co.",pc:"J. Panning",fund:"Dana W.",tgt:"Presenting Sponsor ($200k)",fa:"Jun 03",ra:"Aug 20",pd:"Jun 10",pa:200000,ps:"Committed",who:"Dana W.",lk:"Confirmed",lvl:"Presenting Sponsor ($200k)",samt:200000,sname:"Summit Steel",pledge:0,door:200000,inv:"Yes",guests:20,notes:""},
-  {cid:"85002",name:"Lakeside Holdings",pc:"A. Bookless",fund:"Marcus L.",tgt:"Sacred Honor ($100k)",fa:"May 28",ra:"Aug 18",pd:"Jun 12",pa:100000,ps:"Committed",who:"Marcus L.",lk:"Confirmed",lvl:"Sacred Honor ($100k)",samt:100000,sname:"",pledge:0,door:100000,inv:"Yes",guests:10,notes:""},
+  {cid:"85002",name:"Lakeside Holdings",pc:"A. Bookless",fund:"Marcus L.",tgt:"Sacred Honor ($100k)",fa:"May 28",ra:"Aug 18",pd:"Jun 12",pa:100000,ps:"Committed",who:"Marcus L.",lk:"Confirmed - Need Guest Names",lvl:"Sacred Honor ($100k)",samt:100000,sname:"",pledge:0,door:100000,inv:"Yes",guests:10,notes:""},
   {cid:"85003",name:"Rivertown Bank",pc:"N. Irrer",fund:"Priya S.",tgt:"Patriot ($50k)",fa:"Jun 15",ra:"Aug 25",pd:"Jul 01",pa:50000,ps:"Pending (Ask Made)",who:"Priya S.",lk:"Speculative",lvl:"",samt:50000,sname:"",pledge:0,door:0,inv:"",guests:0,notes:"awaiting board vote"},
   {cid:"85004",name:"Evergreen Foundation",pc:"R. Haworth",fund:"Dana W.",tgt:"Liberty ($25k)",fa:"May 20",ra:"Aug 15",pd:"Jun 08",pa:25000,ps:"Committed - Pledge",who:"Dana W.",lk:"Confirmed",lvl:"Liberty ($25k)",samt:25000,sname:"Evergreen Fdn.",pledge:15000,door:10000,inv:"Yes",guests:8,notes:"two installments"},
-  {cid:"85005",name:"Copperline LLC",pc:"",fund:"Marcus L.",tgt:"Freedom ($10k)",fa:"Jul 02",ra:"Aug 05",pd:"",pa:0,ps:"",who:"",lk:"Unlikely",lvl:"",samt:0,sname:"",pledge:0,door:0,inv:"",guests:0,notes:""},
+  {cid:"85005",name:"Copperline LLC",pc:"",fund:"Marcus L.",tgt:"Freedom ($10k)",fa:"Jul 02",ra:"Aug 05",pd:"",pa:0,ps:"",who:"",lk:"Declined",lvl:"",samt:0,sname:"",pledge:0,door:0,inv:"",guests:0,notes:""},
   {cid:"85006",name:"Meridian Group",pc:"K. Mauren",fund:"Priya S.",tgt:"Justice ($5k)",fa:"Jun 22",ra:"Aug 12",pd:"Jul 05",pa:5000,ps:"Committed",who:"Priya S.",lk:"Confirmed",lvl:"Justice ($5k)",samt:5000,sname:"",pledge:0,door:5000,inv:"Yes",guests:4,notes:""},
   {cid:"85007",name:"Anonymous Friend",pc:"",fund:"Marcus L.",tgt:"Additional Donation",fa:"Aug 01",ra:"Aug 19",pd:"",pa:0,ps:"",who:"",lk:"Confirmed",lvl:"Additional Donation",samt:0,sname:"",pledge:0,door:15000,inv:"",guests:0,notes:"gala appeal gift"},
   {cid:"85008",name:"Northgate Partners",pc:"D. Barker",fund:"Dana W.",tgt:"Liberty ($25k)",fa:"Jul 18",ra:"Aug 22",pd:"",pa:0,ps:"",who:"",lk:"Speculative",lvl:"",samt:0,sname:"",pledge:0,door:10000,inv:"",guests:0,notes:"arrived, not matched to a sponsor"},
@@ -272,13 +280,14 @@ const data=[
 const num=v=>Number(String(v??"").replace(/[^0-9.\-]/g,""))||0;
 const usd=n=>"$"+Math.round(n).toLocaleString("en-US");
 const esc=s=>String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
-function isOfficial(r){return r.lk==="Confirmed" && r.lvl!=="" && r.lvl!=="Additional Donation";}
+function isConfirmed(r){return r.lk==="Confirmed" || r.lk==="Confirmed - Need Guest Names";}
+function isOfficial(r){return isConfirmed(r) && r.lvl!=="" && r.lvl!=="Additional Donation";}
 
 function recompute(){
   let proj=0,inDoor=0,addl=0,attn=0,offCount=0,offAmt=0;
   data.forEach(r=>{
     const door=num(r.door),samt=num(r.samt);
-    const confirmed=r.lk==="Confirmed",hasLvl=r.lvl!=="",isAddl=r.lvl==="Additional Donation";
+    const confirmed=isConfirmed(r),hasLvl=r.lvl!=="",isAddl=r.lvl==="Additional Donation";
     if(confirmed&&hasLvl&&!isAddl){proj+=Math.max(samt,door);inDoor+=door;}
     if(isAddl){addl+=door;}
     if(door>0&&!isAddl&&(!hasLvl||!confirmed)){attn+=door;}
@@ -304,13 +313,18 @@ function recompute(){
 function renderSponsors(){
   const host=document.getElementById("sponsors");host.innerHTML="";
   TIERS.forEach(t=>{
-    const rows=data.filter(r=>r.lvl===t&&r.lk==="Confirmed");
-    const names=rows.map(r=> r.sname&&r.sname.trim()?r.sname:r.name);
+    const rows=data.filter(r=>r.lvl===t && isConfirmed(r));
     const div=document.createElement("div");div.className="scol";
     const tierAmt=TIER_AMT[t]?usd(TIER_AMT[t]):"—";
-    div.innerHTML=`<h3><span>${t.replace(/\s*\(.*\)/,"")}</span><span class="cnt">${names.length}</span></h3>`+
-      `<div class="tieramt">${tierAmt} tier</div>`+
-      (names.length?"<ul>"+names.map(n=>`<li>${esc(n)}</li>`).join("")+"</ul>":`<div class="none">None yet</div>`);
+    const list=rows.length
+      ? "<ul>"+rows.map(r=>{
+          const nm=r.sname&&r.sname.trim()?r.sname:r.name;
+          const needs=r.lk==="Confirmed - Need Guest Names";
+          return `<li class="${needs?"needs-names":""}">${esc(nm)}${needs?'<span class="nn-flag">needs names</span>':""}</li>`;
+        }).join("")+"</ul>"
+      : `<div class="none">None yet</div>`;
+    div.innerHTML=`<h3><span>${t.replace(/\s*\(.*\)/,"")}</span><span class="cnt">${rows.length}</span></h3>`+
+      `<div class="tieramt">${tierAmt} tier</div>`+list;
     host.appendChild(div);
   });
 }
@@ -384,7 +398,7 @@ function renderRoster(keepOpen){
           <span class="rc-meta">${esc(tierLabel)}${r.fund?" · "+esc(r.fund):""}</span>
         </span>
         <span class="rc-right">
-          ${r.lk?`<span class="lk lk-${r.lk}">${r.lk}</span>`:""}
+          ${r.lk?`<span class="lk lk-${LK_CLASS[r.lk]||""}">${esc(LK_SHORT[r.lk]||r.lk)}</span>`:""}
           <span class="rc-amt">${doorTxt}<small>in door</small></span>
           <span class="rc-chev">›</span>
         </span>
