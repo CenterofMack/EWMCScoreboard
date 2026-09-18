@@ -293,10 +293,16 @@ let data = [];
 // Your flow's URL (same one the smoke test proved out).
 const FLOW_URL = 'https://default3877db98b5154133ac939a6ce4072c.91.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/25/workflows/40df9f6fc9dd40eba3bff91166ae5d9a/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=lRV4iYjBKOtzb-9ZtI2j9E6b2vOlWGCz0KgjMVoKJFE';
 
+// Write-back endpoint (the EWMC Save Row flow: validate -> update the row).
+const WRITE_FLOW_URL = 'https://default3877db98b5154133ac939a6ce4072c.91.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/24/workflows/7473b87ce1874cd8a5a3dce27fd1e333/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=ym8F4zCInbnhazyBAyoQp7DWGJisS2AuR9sOKKl5vC8';
+// tile field key -> the exact Excel header the write flow's Parse JSON expects
+const SAVE_MAP = { tgt:"Target Sponsorship Level", lk:"Sponsorship Likelihood", lvl:"Sponsorship Level", samt:"Sponsorship Amount", sname:"Sponsoring Name", inv:"Invoice Created", guests:"Projected # of Guests", notes:"Additional Notes" };
+
 // Maps an Excel column header (exactly as it appears in Table1) to a tile field key.
 // Left = the header text in your workbook; right = the key the tile uses.
 // If a header ever gets renamed in Excel, update it here.
 const COLMAP = {
+  "Constituent ID":          "cid",
   "Constituent Name":        "name",
   "Primary Contact":         "pc",
   "Assigned Fundraiser":     "fund",
@@ -462,7 +468,7 @@ function renderRoster(keepOpen){
         </span>
         <span class="rc-right">
           ${r.lk?`<span class="lk lk-${LK_CLASS[r.lk]||""}">${esc(LK_SHORT[r.lk]||r.lk)}</span>`:""}
-          <span class="rc-amt">${doorTxt}<small>in door</small></span>
+          ${num(r.door)?`<span class="rc-amt">${doorTxt}<small>in door</small></span>`:""}
           <span class="rc-chev">›</span>
         </span>
       </button>
@@ -477,16 +483,34 @@ function renderRoster(keepOpen){
       ed.innerHTML=buildEditor(i);ed.hidden=false;
       card.classList.add("open");btn.setAttribute("aria-expanded","true");
       ed.querySelector(".ep-cancel").addEventListener("click",closeAll);
-      ed.querySelector(".ep-save").addEventListener("click",()=>{
+      ed.querySelector(".ep-save").addEventListener("click",async ()=>{
+        // gather the edited blue fields into a patch (don't commit yet)
+        const patch={};
         ed.querySelectorAll("[data-k]").forEach(inp=>{
           const k=inp.dataset.k, f=BLUE.find(b=>b.k===k);
           let val=inp.value;
           if(f.type==="money"||f.type==="num") val=num(val);
-          data[i][k]=val;
+          patch[k]=val;
         });
-        recompute();
-        toast(`Would <code>POST</code> ${esc(data[i].name)}'s updated fields to your Power Automate flow`);
-        renderRoster(i);
+        const saveBtn=ed.querySelector(".ep-save");
+        saveBtn.disabled=true; const label0=saveBtn.textContent; saveBtn.textContent="Saving…";
+        try{
+          const uit=await window._bbAddin.getUserIdentityToken();
+          const payload={ uit:uit, id:data[i].cid };
+          for(const key in SAVE_MAP){ payload[SAVE_MAP[key]] = patch[key]; }
+          const res=await fetch(WRITE_FLOW_URL,{method:"POST",headers:{"Content-Type":"text/plain"},body:JSON.stringify(payload)});
+          if(!res.ok) throw new Error("flow returned status "+res.status);
+          const j=await res.json();
+          if(!j || j.ok!==true) throw new Error("unexpected response");
+          // write succeeded -> commit locally and refresh
+          Object.assign(data[i],patch);
+          recompute();
+          toast(`Saved ${esc(data[i].name)} to the spreadsheet ✓`);
+          renderRoster(i);
+        }catch(e){
+          saveBtn.disabled=false; saveBtn.textContent=label0;
+          toast(`Save failed for ${esc(data[i].name)} — ${esc(String((e&&e.message)||e))}. Nothing was written.`);
+        }
       });
     });
   });
