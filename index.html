@@ -257,7 +257,7 @@ const LIKELIHOOD=["","Confirmed","Confirmed - Need Names","Speculative","Unlikel
 // maps each likelihood to a safe CSS class suffix (values have spaces/hyphens, so can't be used as class names directly)
 const LK_CLASS={"Confirmed":"Confirmed","Confirmed - Need Names":"NeedNames","Speculative":"Speculative","Unlikely":"Unlikely","Declined":"Declined"};
 // shorter labels for the compact roster badge (full value is still what's stored/written back)
-const LK_SHORT={"Confirmed":"Confirmed","Confirmed - Need Names":"Needs guest names","Speculative":"Speculative","Unlikely":"Unlikely","Declined":"Declined"};
+const LK_SHORT={"Confirmed":"Confirmed","Confirmed - Need Names":"Confirmed · needs names","Speculative":"Speculative","Unlikely":"Unlikely","Declined":"Declined"};
 const YESNO=["","Yes","No"];
 let GOAL=500000, TICKETS=0;   // defaults; overridden by the flow when it sends live values
 
@@ -275,8 +275,8 @@ const BLUE=[
 // orange = read-only context from RE
 const ORANGE=[
   {k:"pc",t:"Primary Contact"},{k:"fund",t:"Assigned Fundraiser"},
-  {k:"fa",t:"First Action"},{k:"ra",t:"Most Recent Action"},
-  {k:"pd",t:"Proposal Date"},{k:"pa",t:"Proposal Amount",money:true},
+  {k:"fa",t:"First Action",date:true},{k:"ra",t:"Most Recent Action",date:true},
+  {k:"pd",t:"Proposal Date",date:true},{k:"pa",t:"Proposal Amount",money:true},
   {k:"ps",t:"Proposal Status"},{k:"who",t:"Who Made Ask"},
   {k:"pledge",t:"Pledge Amount",money:true},{k:"door",t:"Amount in Door",money:true},
 ];
@@ -341,6 +341,13 @@ function mapRow(xl){
 const num=v=>Number(String(v??"").replace(/[^0-9.\-]/g,""))||0;
 const usd=n=>"$"+Math.round(n).toLocaleString("en-US");
 const esc=s=>String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+const xldate=v=>{
+  if(v===""||v==null) return "";
+  const n=Number(v);
+  if(!isFinite(n)||n<1) return String(v);            // already a text date or non-numeric
+  const d=new Date(Math.round((n-25569)*86400000));  // Excel serial -> JS date (UTC)
+  return isNaN(d)?String(v):((d.getUTCMonth()+1)+"/"+d.getUTCDate()+"/"+d.getUTCFullYear());
+};
 function isConfirmed(r){return String(r.lk||"").indexOf("Confirmed")===0;}
 function isOfficial(r){return isConfirmed(r) && r.lvl!=="" && r.lvl!=="Additional Donation";}
 
@@ -422,7 +429,10 @@ function fieldInput(f,r){
 function buildEditor(i){
   const r=data[i];
   const cx=ORANGE.map(f=>{
-    let v=r[f.k]; v=f.money?(num(v)?usd(num(v)):"—"):((v===""||v==null)?"—":v);
+    let v;
+    if(f.money)      v = num(r[f.k])?usd(num(r[f.k])):"—";
+    else if(f.date)  v = xldate(r[f.k]) || "—";
+    else             v = (r[f.k]===""||r[f.k]==null)?"—":r[f.k];
     return `<div class="ep-cx"><span class="l">${f.t}</span><span class="v">${esc(v)}</span></div>`;
   }).join("");
   const fields=BLUE.map(f=>`<div class="ep-f"><label>${f.t}</label>${fieldInput(f,r)}</div>`).join("");
@@ -483,13 +493,16 @@ function renderRoster(keepOpen){
       ed.innerHTML=buildEditor(i);ed.hidden=false;
       card.classList.add("open");btn.setAttribute("aria-expanded","true");
       ed.querySelector(".ep-cancel").addEventListener("click",closeAll);
+      const reEnableSave=()=>{ const b=ed.querySelector(".ep-save"); if(b){ b.disabled=false; b.textContent="Save changes"; } };
+      ed.addEventListener("input",reEnableSave);
+      ed.addEventListener("change",reEnableSave);
       ed.querySelector(".ep-save").addEventListener("click",async ()=>{
         // gather the edited blue fields into a patch (don't commit yet)
         const patch={};
         ed.querySelectorAll("[data-k]").forEach(inp=>{
           const k=inp.dataset.k, f=BLUE.find(b=>b.k===k);
           let val=inp.value;
-          if(f.type==="money"||f.type==="num") val=num(val);
+          if(f.type==="money"||f.type==="num") val = (String(inp.value).trim()==="") ? "" : num(val);
           patch[k]=val;
         });
         const saveBtn=ed.querySelector(".ep-save");
@@ -502,11 +515,11 @@ function renderRoster(keepOpen){
           if(!res.ok) throw new Error("flow returned status "+res.status);
           const j=await res.json();
           if(!j || j.ok!==true) throw new Error("unexpected response");
-          // write succeeded -> commit locally and refresh
+          // write succeeded -> commit locally, keep editor open, show "Saved ✓"
           Object.assign(data[i],patch);
           recompute();
+          saveBtn.textContent="Saved ✓"; saveBtn.disabled=true;
           toast(`Saved ${esc(data[i].name)} to the spreadsheet ✓`);
-          renderRoster(i);
         }catch(e){
           saveBtn.disabled=false; saveBtn.textContent=label0;
           toast(`Save failed for ${esc(data[i].name)} — ${esc(String((e&&e.message)||e))}. Nothing was written.`);
