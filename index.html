@@ -241,7 +241,7 @@
   <div class="filters">
     <input id="f-search" type="search" placeholder="Search sponsor name…">
     <select id="f-fund"><option value="">All fundraisers</option></select>
-    <select id="f-lk"><option value="">All likelihoods</option><option>Confirmed</option><option>Confirmed - Need Guest Names</option><option>Speculative</option><option>Unlikely</option><option>Declined</option></select>
+    <select id="f-lk"><option value="">All likelihoods</option><option>Confirmed</option><option>Confirmed - Need Names</option><option>Speculative</option><option>Unlikely</option><option>Declined</option></select>
     <button id="f-clear" type="button" hidden>Clear</button>
   </div>
   <div class="roster-count" id="roster-count"></div>
@@ -254,11 +254,11 @@
 <script>
 const TIERS=["Presenting Sponsor ($200k)","Sacred Honor ($100k)","Patriot ($50k)","Liberty ($25k)","Freedom ($10k)","Justice ($5k)","Additional Donation"];
 const TIER_AMT={"Presenting Sponsor ($200k)":200000,"Sacred Honor ($100k)":100000,"Patriot ($50k)":50000,"Liberty ($25k)":25000,"Freedom ($10k)":10000,"Justice ($5k)":5000,"Additional Donation":0};
-const LIKELIHOOD=["","Confirmed","Confirmed - Need Guest Names","Speculative","Unlikely","Declined"];
+const LIKELIHOOD=["","Confirmed","Confirmed - Need Names","Speculative","Unlikely","Declined"];
 // maps each likelihood to a safe CSS class suffix (values have spaces/hyphens, so can't be used as class names directly)
-const LK_CLASS={"Confirmed":"Confirmed","Confirmed - Need Guest Names":"NeedNames","Speculative":"Speculative","Unlikely":"Unlikely","Declined":"Declined"};
+const LK_CLASS={"Confirmed":"Confirmed","Confirmed - Need Names":"NeedNames","Speculative":"Speculative","Unlikely":"Unlikely","Declined":"Declined"};
 // shorter labels for the compact roster badge (full value is still what's stored/written back)
-const LK_SHORT={"Confirmed":"Confirmed","Confirmed - Need Guest Names":"Need names","Speculative":"Speculative","Unlikely":"Unlikely","Declined":"Declined"};
+const LK_SHORT={"Confirmed":"Confirmed","Confirmed - Need Names":"Need names","Speculative":"Speculative","Unlikely":"Unlikely","Declined":"Declined"};
 const YESNO=["","Yes","No"];
 const GOAL=500000, TICKETS=42000;
 
@@ -336,7 +336,7 @@ function mapRow(xl){
 const num=v=>Number(String(v??"").replace(/[^0-9.\-]/g,""))||0;
 const usd=n=>"$"+Math.round(n).toLocaleString("en-US");
 const esc=s=>String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
-function isConfirmed(r){return r.lk==="Confirmed" || r.lk==="Confirmed - Need Guest Names";}
+function isConfirmed(r){return String(r.lk||"").indexOf("Confirmed")===0;}
 function isOfficial(r){return isConfirmed(r) && r.lvl!=="" && r.lvl!=="Additional Donation";}
 
 function recompute(){
@@ -375,7 +375,7 @@ function renderSponsors(){
     const list=rows.length
       ? "<ul>"+rows.map(r=>{
           const nm=r.sname&&r.sname.trim()?r.sname:r.name;
-          const needs=r.lk==="Confirmed - Need Guest Names";
+          const needs=String(r.lk||"").indexOf("Confirmed")===0 && String(r.lk||"").indexOf("Need")>=0;
           return `<li class="${needs?"needs-names":""}">${esc(nm)}${needs?'<span class="nn-flag">needs names</span>':""}</li>`;
         }).join("")+"</ul>"
       : `<div class="none">None yet</div>`;
@@ -390,7 +390,7 @@ const PAGE=15;
 let fSearch="",fFund="",fLk="",shown=PAGE;
 function getFiltered(){
   return data.map((r,i)=>({r,i})).filter(({r})=>{
-    if(fSearch && !((r.name||"").toLowerCase().includes(fSearch))) return false;
+    if(fSearch && !((r.name||"").toLowerCase().includes(fSearch) || (r.sname||"").toLowerCase().includes(fSearch))) return false;
     if(fFund && r.fund!==fFund) return false;
     if(fLk && r.lk!==fLk) return false;
     return true;
@@ -449,11 +449,17 @@ function renderRoster(keepOpen){
     const card=document.createElement("div");card.className="rcard";
     const tierLabel=(r.lvl||r.tgt||"—").replace(/\s*\(.*\)/,"");
     const doorTxt=num(r.door)?usd(num(r.door)):"—";
+    const spName=(r.sname&&r.sname.trim())?r.sname.trim():"";
+    const displayName=spName||r.name;
+    const metaBits=[];
+    if(spName) metaBits.push(esc(r.name));
+    metaBits.push(esc(tierLabel));
+    if(r.fund) metaBits.push(esc(r.fund));
     card.innerHTML=`
       <button class="rc-summary" aria-expanded="false">
         <span class="rc-left">
-          <span class="rc-name">${esc(r.name)}</span>
-          <span class="rc-meta">${esc(tierLabel)}${r.fund?" · "+esc(r.fund):""}</span>
+          <span class="rc-name">${esc(displayName)}</span>
+          <span class="rc-meta">${metaBits.join(" · ")}</span>
         </span>
         <span class="rc-right">
           ${r.lk?`<span class="lk lk-${LK_CLASS[r.lk]||""}">${esc(LK_SHORT[r.lk]||r.lk)}</span>`:""}
