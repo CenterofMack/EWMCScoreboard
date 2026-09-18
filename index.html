@@ -259,7 +259,7 @@ const LK_CLASS={"Confirmed":"Confirmed","Confirmed - Need Names":"NeedNames","Sp
 // shorter labels for the compact roster badge (full value is still what's stored/written back)
 const LK_SHORT={"Confirmed":"Confirmed","Confirmed - Need Names":"Needs guest names","Speculative":"Speculative","Unlikely":"Unlikely","Declined":"Declined"};
 const YESNO=["","Yes","No"];
-const GOAL=500000, TICKETS=42000;
+let GOAL=500000, TICKETS=0;   // defaults; overridden by the flow when it sends live values
 
 // blue = editable (writes back to RE)
 const BLUE=[
@@ -538,11 +538,17 @@ function loadLive(uit){
       return res.json();
     })
     .then(payload=>{
-      // The flow returns the Excel action's "value" — an array of row objects.
-      // Accept either a bare array or an object with a .value array, just in case.
+      // Accept the roster rows as a bare array, or under .rows / .value.
       const rows = Array.isArray(payload) ? payload
-                 : (payload && Array.isArray(payload.value) ? payload.value : null);
+                 : (payload && Array.isArray(payload.rows))  ? payload.rows
+                 : (payload && Array.isArray(payload.value)) ? payload.value
+                 : null;
       if(!rows) throw new Error('unexpected response shape');
+      // If the flow also sends live financial inputs, use them instead of the defaults.
+      if(payload && !Array.isArray(payload)){
+        if(payload.tickets != null) TICKETS = num(payload.tickets);
+        if(payload.goal    != null) GOAL    = num(payload.goal);
+      }
       data = rows.map(mapRow).filter(r => (r.name||"").trim() !== "");  // drop blank rows
       renderAll();
     })
