@@ -587,6 +587,8 @@ function loadLive(uit){
         else if(Array.isArray(payload.ticketRows))                       // live ticket sales from the TicketSales table
           TICKETS = payload.ticketRows.reduce((sum,row)=> sum + num(row["Ticket Sales"]), 0);
         if(payload.goal != null) GOAL = num(payload.goal);
+        else if(Array.isArray(payload.goalRows) && payload.goalRows.length)   // live event goal from the EventGoal table
+          GOAL = num(payload.goalRows[0]["Event Goal"]);
       }
       data = rows.map(mapRow).filter(r => (r.name||"").trim() !== "");  // drop blank rows
       renderAll();
