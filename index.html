@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://sky.blackbaudcdn.net; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.blackbaud.com https://*.blackbaudcloud.com; img-src 'self' data:; frame-ancestors https://*.blackbaud.com https://*.blackbaudcloud.com https://*.blackbaudhosting.com;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://sky.blackbaudcdn.net; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.blackbaud.com https://*.blackbaudcloud.com https://*.powerplatform.com; img-src 'self' data:; frame-ancestors https://*.blackbaud.com https://*.blackbaudcloud.com https://*.blackbaudhosting.com;">
 <title>EWMC 2027 — Sponsorship Scoreboard</title>
 <script src="https://sky.blackbaudcdn.net/static/sky-addin-client/1/sky-addin-client.umd.min.js"></script>
 <style>
@@ -24,6 +24,8 @@
   .title em{font-style:italic;font-weight:400;}
   .sample{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--warn);background:#fdf3e4;border:1px solid #f0dcc0;padding:4px 9px;border-radius:999px;}
   .sample::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--warn);}
+  .live{color:var(--good);background:#eaf5ee;border-color:#c7e4d3;}
+  .live::before{background:var(--good);}
 
   .section-label{font-family:ui-serif,Georgia,"Times New Roman",serif;font-size:16px;font-weight:600;margin:36px 0 14px;padding-top:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:relative;border-top:2px solid var(--ink);}
   .section-label::before{content:"";position:absolute;top:-2px;left:0;width:78px;height:2px;background:var(--gold);}
@@ -137,6 +139,16 @@
   .roster-more button:hover{background:var(--edit-bg);}
   .roster-empty{padding:22px;text-align:center;color:var(--ink-soft);font-size:13px;font-style:italic;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);}
 
+  /* ---------- LIVE load / error states ---------- */
+  .state{max-width:1240px;margin:40px auto;padding:26px;text-align:center;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);font-size:14px;color:var(--ink-soft);}
+  .state.err{border-color:#e7c9c1;background:#fdf5f3;color:#7e4a41;}
+  .state .st-title{font-weight:600;color:var(--ink);font-size:15px;margin-bottom:6px;}
+  .state.err .st-title{color:var(--dead);}
+  .state .st-detail{font-size:12px;margin-top:8px;font-family:ui-monospace,Menlo,Consolas,monospace;word-break:break-word;opacity:.8;}
+  .spin{display:inline-block;width:18px;height:18px;border:2px solid var(--line);border-top-color:var(--gold);border-radius:50%;animation:sp .8s linear infinite;vertical-align:-4px;margin-right:8px;}
+  @keyframes sp{to{transform:rotate(360deg);}}
+  @media (prefers-reduced-motion:reduce){.spin{animation:none;}}
+
   /* Narrow-column mode */
   @media (max-width:720px){
     body{padding:12px;}
@@ -156,14 +168,18 @@
 </style>
 </head>
 <body>
-<div class="tile">
+
+<!-- LOADING / ERROR takes over until live rows arrive -->
+<div id="gate" class="state"><span class="spin"></span>Loading your live EWMC numbers…</div>
+
+<div class="tile" id="tile" hidden>
 
   <div class="head">
     <div>
       <p class="eyebrow">Campaign 27-EWMC · Sponsorship Scoreboard</p>
       <h1 class="title">EWMC <em>2027</em> — an Evening with Mackinac Center</h1>
     </div>
-    <span class="sample">Sample data — invented rows, not your live EWMC constituents</span>
+    <span class="sample live" id="live-badge">Live data — from Raiser's Edge via SharePoint</span>
   </div>
 
   <!-- GOAL HERO -->
@@ -266,16 +282,56 @@ const ORANGE=[
   {k:"pledge",t:"Pledge Amount",money:true},{k:"door",t:"Amount in Door",money:true},
 ];
 
-const data=[
-  {cid:"85001",name:"Summit Steel Co.",pc:"J. Panning",fund:"Dana W.",tgt:"Presenting Sponsor ($200k)",fa:"Jun 03",ra:"Aug 20",pd:"Jun 10",pa:200000,ps:"Committed",who:"Dana W.",lk:"Confirmed",lvl:"Presenting Sponsor ($200k)",samt:200000,sname:"Summit Steel",pledge:0,door:200000,inv:"Yes",guests:20,notes:""},
-  {cid:"85002",name:"Lakeside Holdings",pc:"A. Bookless",fund:"Marcus L.",tgt:"Sacred Honor ($100k)",fa:"May 28",ra:"Aug 18",pd:"Jun 12",pa:100000,ps:"Committed",who:"Marcus L.",lk:"Confirmed - Need Guest Names",lvl:"Sacred Honor ($100k)",samt:100000,sname:"",pledge:0,door:100000,inv:"Yes",guests:10,notes:""},
-  {cid:"85003",name:"Rivertown Bank",pc:"N. Irrer",fund:"Priya S.",tgt:"Patriot ($50k)",fa:"Jun 15",ra:"Aug 25",pd:"Jul 01",pa:50000,ps:"Pending (Ask Made)",who:"Priya S.",lk:"Speculative",lvl:"",samt:50000,sname:"",pledge:0,door:0,inv:"",guests:0,notes:"awaiting board vote"},
-  {cid:"85004",name:"Evergreen Foundation",pc:"R. Haworth",fund:"Dana W.",tgt:"Liberty ($25k)",fa:"May 20",ra:"Aug 15",pd:"Jun 08",pa:25000,ps:"Committed - Pledge",who:"Dana W.",lk:"Confirmed",lvl:"Liberty ($25k)",samt:25000,sname:"Evergreen Fdn.",pledge:15000,door:10000,inv:"Yes",guests:8,notes:"two installments"},
-  {cid:"85005",name:"Copperline LLC",pc:"",fund:"Marcus L.",tgt:"Freedom ($10k)",fa:"Jul 02",ra:"Aug 05",pd:"",pa:0,ps:"",who:"",lk:"Declined",lvl:"",samt:0,sname:"",pledge:0,door:0,inv:"",guests:0,notes:""},
-  {cid:"85006",name:"Meridian Group",pc:"K. Mauren",fund:"Priya S.",tgt:"Justice ($5k)",fa:"Jun 22",ra:"Aug 12",pd:"Jul 05",pa:5000,ps:"Committed",who:"Priya S.",lk:"Confirmed",lvl:"Justice ($5k)",samt:5000,sname:"",pledge:0,door:5000,inv:"Yes",guests:4,notes:""},
-  {cid:"85007",name:"Anonymous Friend",pc:"",fund:"Marcus L.",tgt:"Additional Donation",fa:"Aug 01",ra:"Aug 19",pd:"",pa:0,ps:"",who:"",lk:"Confirmed",lvl:"Additional Donation",samt:0,sname:"",pledge:0,door:15000,inv:"",guests:0,notes:"gala appeal gift"},
-  {cid:"85008",name:"Northgate Partners",pc:"D. Barker",fund:"Dana W.",tgt:"Liberty ($25k)",fa:"Jul 18",ra:"Aug 22",pd:"",pa:0,ps:"",who:"",lk:"Speculative",lvl:"",samt:0,sname:"",pledge:0,door:10000,inv:"",guests:0,notes:"arrived, not matched to a sponsor"},
-];
+/* -------------------------------------------------------------------------
+   LIVE DATA
+   `data` now starts empty and is filled from the Power Automate flow.
+   The flow validates the user's identity token, reads Table1 from the
+   SharePoint workbook, and returns the rows. We map each Excel column
+   header onto the short field keys the tile already uses.
+   ------------------------------------------------------------------------- */
+let data = [];
+
+// Your flow's URL (same one the smoke test proved out).
+const FLOW_URL = 'https://default3877db98b5154133ac939a6ce4072c.91.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/25/workflows/40df9f6fc9dd40eba3bff91166ae5d9a/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=lRV4iYjBKOtzb-9ZtI2j9E6b2vOlWGCz0KgjMVoKJFE';
+
+// Maps an Excel column header (exactly as it appears in Table1) to a tile field key.
+// Left = the header text in your workbook; right = the key the tile uses.
+// If a header ever gets renamed in Excel, update it here.
+const COLMAP = {
+  "Constituent Name":        "name",
+  "Primary Contact":         "pc",
+  "Assigned Fundraiser":     "fund",
+  "Target Sponsorship Level":"tgt",
+  "First Action Date":       "fa",
+  "Most Recent Action Date": "ra",
+  "Proposal Date":           "pd",
+  "Proposal Amount":         "pa",
+  "Proposal Status":         "ps",
+  "Who Made Ask":            "who",
+  "Sponsorship Likelihood":  "lk",
+  "Sponsorship Level":       "lvl",
+  "Sponsorship Amount":      "samt",
+  "Sponsoring Name":         "sname",
+  "Pledge Amount":           "pledge",
+  "Amount in Door":          "door",
+  "Invoice Created":         "inv",
+  "Projected # of Guests":   "guests",
+  "Additional Notes":        "notes",
+};
+
+// Turn one Excel row object into the tile's row shape.
+function mapRow(xl){
+  const r = {cid:"", name:"", pc:"", fund:"", tgt:"", fa:"", ra:"", pd:"", pa:0, ps:"",
+             who:"", lk:"", lvl:"", samt:0, sname:"", pledge:0, door:0, inv:"", guests:0, notes:""};
+  for (const header in COLMAP){
+    if (Object.prototype.hasOwnProperty.call(xl, header)){
+      r[COLMAP[header]] = xl[header];
+    }
+  }
+  // numeric fields: strip $ and commas so the math works
+  ["pa","samt","pledge","door","guests"].forEach(k=>{ r[k] = num(r[k]); });
+  return r;
+}
 
 const num=v=>Number(String(v??"").replace(/[^0-9.\-]/g,""))||0;
 const usd=n=>"$"+Math.round(n).toLocaleString("en-US");
@@ -343,6 +399,8 @@ function getFiltered(){
 function populateFundraisers(){
   const set=[...new Set(data.map(r=>r.fund).filter(Boolean))].sort();
   const sel=document.getElementById("f-fund");
+  // reset to just the "All" option, then repopulate from live data
+  sel.length = 1;
   set.forEach(f=>{const o=document.createElement("option");o.value=f;o.textContent=f;sel.appendChild(o);});
 }
 function fieldInput(f,r){
@@ -443,24 +501,71 @@ function renderRoster(keepOpen){
 
 function toast(m){const t=document.getElementById("toast");t.innerHTML=m;t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),3600);}
 
-populateFundraisers();
+// Called once live rows are in `data` — renders the whole tile.
+function renderAll(){
+  document.getElementById("gate").hidden = true;
+  document.getElementById("tile").hidden = false;
+  populateFundraisers();
+  renderRoster();
+  recompute();
+}
+
+// Show a friendly failure instead of wrong numbers.
+function showError(title, detail){
+  const g = document.getElementById("gate");
+  g.className = "state err";
+  g.innerHTML = `<div class="st-title">${esc(title)}</div>`+
+                `Your real numbers didn't load, so nothing is shown rather than showing something wrong.`+
+                (detail?`<div class="st-detail">${esc(detail)}</div>`:``);
+}
+
+// wire up filters once (they act on whatever is in `data`)
 document.getElementById("f-search").addEventListener("input",e=>{fSearch=e.target.value.trim().toLowerCase();shown=PAGE;renderRoster();});
 document.getElementById("f-fund").addEventListener("change",e=>{fFund=e.target.value;shown=PAGE;renderRoster();});
 document.getElementById("f-lk").addEventListener("change",e=>{fLk=e.target.value;shown=PAGE;renderRoster();});
 document.getElementById("f-clear").addEventListener("click",()=>{fSearch=fFund=fLk="";shown=PAGE;["f-search","f-fund","f-lk"].forEach(id=>document.getElementById(id).value="");renderRoster();});
-renderRoster();
-recompute();
+
+/* ---------- fetch live rows through the flow ---------- */
+function loadLive(uit){
+  fetch(FLOW_URL, { method:'POST', headers:{'Content-Type':'text/plain'}, body:uit })
+    .then(res=>{
+      if(!res.ok) throw new Error('flow returned status '+res.status);
+      return res.json();
+    })
+    .then(payload=>{
+      // The flow returns the Excel action's "value" — an array of row objects.
+      // Accept either a bare array or an object with a .value array, just in case.
+      const rows = Array.isArray(payload) ? payload
+                 : (payload && Array.isArray(payload.value) ? payload.value : null);
+      if(!rows) throw new Error('unexpected response shape');
+      data = rows.map(mapRow).filter(r => (r.name||"").trim() !== "");  // drop blank rows
+      renderAll();
+    })
+    .catch(err=>{
+      showError('Couldn’t load live data', String(err && err.message ? err.message : err));
+    });
+}
 </script>
+
 <script>
 /* SKY Add-in handshake — required for RE to display the tile (and to size its iframe).
-   Runs only inside a Blackbaud host; opening the URL directly just skips it. */
+   Once the host is ready, we grab the user's identity token and load live rows. */
 (function () {
-  if (typeof BBSkyAddinClient === "undefined" || !BBSkyAddinClient.AddinClient) return;
+  if (typeof BBSkyAddinClient === "undefined" || !BBSkyAddinClient.AddinClient) {
+    showError('Not running inside Raiser’s Edge',
+              'This tile must be opened from inside RE NXT so it can identify you.');
+    return;
+  }
   try {
-    window._bbAddin = new BBSkyAddinClient.AddinClient({
+    var client = new BBSkyAddinClient.AddinClient({
       callbacks: {
         init: function (args) {
           args.ready({ showUI: true, title: "EWMC 2027 Scoreboard" });
+          client.getUserIdentityToken().then(function (uit) {
+            loadLive(uit);
+          }).catch(function (e) {
+            showError('Couldn’t confirm your identity', String(e));
+          });
         }
       },
       allowedOrigins: [
@@ -470,7 +575,10 @@ recompute();
         /^https:\/\/[\w\-\.]+\.blackbaud\.dev$/
       ]
     });
-  } catch (e) { /* not in a host context — render standalone */ }
+    window._bbAddin = client;
+  } catch (e) {
+    showError('Add-in failed to start', String(e));
+  }
 })();
 </script>
 </body>
