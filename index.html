@@ -584,7 +584,9 @@ function loadLive(uit){
       // If the flow also sends live financial inputs, use them instead of the defaults.
       if(payload && !Array.isArray(payload)){
         if(payload.tickets != null) TICKETS = num(payload.tickets);
-        if(payload.goal    != null) GOAL    = num(payload.goal);
+        else if(Array.isArray(payload.ticketRows))                       // live ticket sales from the TicketSales table
+          TICKETS = payload.ticketRows.reduce((sum,row)=> sum + num(row["Ticket Sales"]), 0);
+        if(payload.goal != null) GOAL = num(payload.goal);
       }
       data = rows.map(mapRow).filter(r => (r.name||"").trim() !== "");  // drop blank rows
       renderAll();
