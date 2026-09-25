@@ -609,7 +609,7 @@ function loadLive(uit){
 /* SKY Add-in handshake — required for RE to display the tile (and to size its iframe).
    Once the host is ready, we grab the user's identity token and load live rows. */
 (function () {
-  showStatus('Verifying you are inside Raiser’s Edge',
+  showStatus('Loading the live EWMC numbers…',
             'Attempting to verify that you are running this inside RE NXT.');
   if (typeof BBSkyAddinClient === "undefined" || !BBSkyAddinClient.AddinClient) {
     showError('Not running inside Raiser’s Edge',
@@ -620,7 +620,7 @@ function loadLive(uit){
     var client = new BBSkyAddinClient.AddinClient({
       callbacks: {
         init: function (args) {
-         showStatus('Loading the live EWMC numbers', 'Verifying your identity.');
+         showStatus('Loading your EWMC numbers', 'Verifying your identity.');
           args.ready({ showUI: true, title: "EWMC 2027 Scoreboard" });
           client.getUserIdentityToken().then(function (uit) {
             loadLive(uit);
