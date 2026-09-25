@@ -562,8 +562,8 @@ function showError(title, detail){
 // Show a status message.
 function showStatus(title, detail){
   const g = document.getElementById("gate");
-  g.className = "state err";
-  g.innerHTML = `<div class="st-title">${esc(title)}</div>`+
+  g.className = "state";
+  g.innerHTML = `<div class="st-title"><span class="spin">${esc(title)}</div>`+
                 (detail?`<div class="st-detail">${esc(detail)}</div>`:``);
 }
 
