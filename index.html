@@ -169,7 +169,7 @@
 <body>
 
 <!-- LOADING / ERROR takes over until live rows arrive -->
-<div id="gate" class="state"><span class="spin"></span>Loading your live EWMC numbers…</div>
+<div id="gate" class="state"><span class="spin"></span>Waiting to load your live EWMC numbers…</div>
 
 <div class="tile" id="tile" hidden>
 
@@ -601,6 +601,8 @@ function loadLive(uit){
 /* SKY Add-in handshake — required for RE to display the tile (and to size its iframe).
    Once the host is ready, we grab the user's identity token and load live rows. */
 (function () {
+  showError('Verifying you are inside Raiser’s Edge',
+            'Attempting to verify that you are running this inside RE NXT.');
   if (typeof BBSkyAddinClient === "undefined" || !BBSkyAddinClient.AddinClient) {
     showError('Not running inside Raiser’s Edge',
               'This tile must be opened from inside RE NXT so it can identify you.');
@@ -626,6 +628,7 @@ function loadLive(uit){
       ]
     });
     window._bbAddin = client;
+    showError('Loading the live EWMC numbers…', 'Loading your live EWMC numbers…');
   } catch (e) {
     showError('Add-in failed to start', String(e));
   }
