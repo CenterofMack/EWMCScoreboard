@@ -563,7 +563,7 @@ function showError(title, detail){
 function showStatus(title, detail){
   const g = document.getElementById("gate");
   g.className = "state";
-  g.innerHTML = `<div class="st-title"><span class="spin">${esc(title)}</div>`+
+  g.innerHTML = `<div class="st-title"><span class="spin"></span>${esc(title)}</div>`+
                 (detail?`<div class="st-detail">${esc(detail)}</div>`:``);
 }
 
