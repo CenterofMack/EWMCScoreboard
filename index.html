@@ -559,6 +559,14 @@ function showError(title, detail){
                 (detail?`<div class="st-detail">${esc(detail)}</div>`:``);
 }
 
+// Show a status message.
+function showStatus(title, detail){
+  const g = document.getElementById("gate");
+  g.className = "state err";
+  g.innerHTML = `<div class="st-title">${esc(title)}</div>`+
+                (detail?`<div class="st-detail">${esc(detail)}</div>`:``);
+}
+
 // wire up filters once (they act on whatever is in `data`)
 document.getElementById("f-search").addEventListener("input",e=>{fSearch=e.target.value.trim().toLowerCase();shown=PAGE;renderRoster();});
 document.getElementById("f-fund").addEventListener("change",e=>{fFund=e.target.value;shown=PAGE;renderRoster();});
@@ -601,7 +609,7 @@ function loadLive(uit){
 /* SKY Add-in handshake — required for RE to display the tile (and to size its iframe).
    Once the host is ready, we grab the user's identity token and load live rows. */
 (function () {
-  showError('Verifying you are inside Raiser’s Edge',
+  showStatus('Verifying you are inside Raiser’s Edge',
             'Attempting to verify that you are running this inside RE NXT.');
   if (typeof BBSkyAddinClient === "undefined" || !BBSkyAddinClient.AddinClient) {
     showError('Not running inside Raiser’s Edge',
@@ -612,6 +620,7 @@ function loadLive(uit){
     var client = new BBSkyAddinClient.AddinClient({
       callbacks: {
         init: function (args) {
+         showStatus('Loading the live EWMC numbers', 'Verifying your identity.');
           args.ready({ showUI: true, title: "EWMC 2027 Scoreboard" });
           client.getUserIdentityToken().then(function (uit) {
             loadLive(uit);
@@ -628,8 +637,7 @@ function loadLive(uit){
       ]
     });
     window._bbAddin = client;
-    showError('Loading the live EWMC numbers…', 'Loading your live EWMC numbers…');
-  } catch (e) {
+   } catch (e) {
     showError('Add-in failed to start', String(e));
   }
 })();
