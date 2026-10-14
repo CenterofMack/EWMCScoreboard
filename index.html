@@ -9,8 +9,8 @@
 <style>
   :root{
     /* Projections palette: navy header band, Excel blues, light blue banding */
-    --navy:#1F3864; --blue:#2F5597; --mid:#5B9BD5; --pale:#BDD7EE; --wash:#DCE6F1;
-    --ink:#1c2533; --ink-soft:#5a6578; --page:#f3f6fa; --card:#ffffff; --line:#d6dfea;
+    --navy:#1F3864; --blue:#2F5597; --mid:#5B9BD5; --pale:#BDD7EE; --wash:#D3E0EF;
+    --ink:#1c2533; --ink-soft:#5a6578; --page:#f3f6fa; --card:#EDF3FA; --line:#C9D7E8;
     --edit:#2F5597; --edit-bg:#eaf1fa; --re:#c98a3a; --re-bg:#fbf2e6;
     --good:#2f7d54; --warn:#b06a1b; --dead:#9a3838; --radius:10px;
   }
@@ -39,7 +39,7 @@
   .hero .hpct{font-family:ui-serif,Georgia,"Times New Roman",serif;font-size:34px;font-weight:600;color:var(--blue);line-height:1;text-align:right;font-variant-numeric:tabular-nums;}
   .hero .hpct small{display:block;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:12px;color:var(--ink-soft);font-weight:500;margin-top:4px;}
 
-  .gbar{position:relative;height:22px;background:#eef2f7;border-radius:6px;overflow:visible;}
+  .gbar{position:relative;height:22px;background:#D6E2F0;border-radius:6px;overflow:visible;}
   .gbar .segs{display:flex;height:100%;border-radius:6px;overflow:hidden;}
   .gbar .seg{height:100%;width:0;transition:width .6s;}
   .seg-in{background:var(--navy);}
@@ -47,7 +47,13 @@
   .seg-sp{background:repeating-linear-gradient(135deg,var(--pale) 0 6px,#e3eef8 6px 11px);}
   .gbar .gmark{position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--ink);display:none;}
   .gbar .gmark::after{content:"Goal";position:absolute;top:-17px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:600;color:var(--ink);}
-  .gscale{display:flex;justify-content:space-between;font-size:11px;color:var(--ink-soft);margin-top:5px;font-variant-numeric:tabular-nums;}
+  .gscale{position:relative;height:24px;margin-top:3px;font-size:11px;color:var(--ink-soft);font-variant-numeric:tabular-nums;}
+  .gscale .tk{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap;}
+  .gscale .tk::before{content:"";display:block;width:1px;height:6px;background:#9fb0c7;margin:0 auto 2px;}
+  .gscale .tk.first{transform:none;}
+  .gscale .tk.first::before{margin:0 0 2px;}
+  .gscale .tk.last{transform:translateX(-100%);}
+  .gscale .tk.last::before{margin:0 0 2px auto;}
 
   .hfoot{margin-top:14px;padding-top:12px;border-top:2px dotted var(--line);font-size:13px;color:var(--ink-soft);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;}
   .hfoot b{color:var(--navy);font-variant-numeric:tabular-nums;}
@@ -58,10 +64,10 @@
   .fs{display:flex;flex-direction:column;gap:8px;}
   .fs details{transition:box-shadow .2s;}
   .fs details:hover{box-shadow:0 2px 10px rgba(47,85,151,.12);}
-  .fs details{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
+  .fs details{background:#E1EAF5;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
   .fs summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:11px;padding:12px 16px;}
   .fs summary::-webkit-details-marker{display:none;}
-  .fs summary:hover{background:#f7f9fc;}
+  .fs summary:hover{background:#D9E5F2;}
   .fs details[open] summary{background:var(--wash);border-bottom:1px solid var(--line);}
   .fs .sw{width:14px;height:14px;border-radius:3px;flex-shrink:0;}
   .fs .st{flex:1;font-weight:600;font-size:14px;color:var(--navy);}
@@ -106,7 +112,7 @@
   .rcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
   .rcard.open{border-color:#b9cde6;box-shadow:0 2px 10px rgba(47,85,151,.10);}
   .rc-summary{width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;background:none;border:none;cursor:pointer;text-align:left;font:inherit;}
-  .rc-summary:hover{background:#f7f9fc;}
+  .rc-summary:hover{background:#E3ECF7;}
   .rcard.open .rc-summary{background:var(--wash);}
   .rc-left{display:flex;flex-direction:column;gap:2px;min-width:0;}
   .rc-name{font-weight:600;color:var(--ink);font-size:14px;}
@@ -123,7 +129,7 @@
   .lk-Unlikely{background:#f2e6e6;color:var(--dead);}
   .lk-Declined{background:#eceae7;color:#7a7a7a;}
 
-  .rc-editor{border-top:1px solid var(--line);padding:14px;background:#fafcfe;}
+  .rc-editor{border-top:1px solid var(--line);padding:14px;background:#F5F9FD;}
   .ep-context{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:9px 14px;padding:11px 13px;background:var(--re-bg);border:1px solid #f0e0cb;border-radius:8px;margin-bottom:15px;}
   .ep-cx{display:flex;flex-direction:column;gap:1px;min-width:0;}
   .ep-cx .l{font-size:10px;color:var(--re);font-weight:700;}
@@ -213,7 +219,7 @@
       </div>
       <span class="gmark" id="b-goal"></span>
     </div>
-    <div class="gscale"><span>$0</span><span id="g-scale">$500,000</span></div>
+    <div class="gscale" id="g-ticks" aria-hidden="true"></div>
 
     <div class="fs">
       <details>
@@ -327,10 +333,13 @@ function mapRow(xl){
       r[COLMAP[header]] = xl[header];
     }
   }
-  ["pa","samt","pledge","door","guests"].forEach(k=>{ r[k] = num(r[k]); });
+  ["pa","pledge","door","guests"].forEach(k=>{ r[k] = num(r[k]); });
+  // Sponsorship Amount keeps blank ("not entered") separate from 0 (e.g. honorary)
+  r.samt = isBlank(r.samt) ? "" : num(r.samt);
   return r;
 }
 
+const isBlank=v=>v===""||v==null||String(v).trim()==="";
 const num=v=>Number(String(v??"").replace(/[^0-9.\-]/g,""))||0;
 const usd=n=>"$"+Math.round(n).toLocaleString("en-US");
 // one decimal under 10% so small progress doesn't read as 0%
@@ -373,7 +382,7 @@ function recompute(){
     // SPECULATIVE — marked Speculative: Sponsorship Amount if typed, else Target level, else Sponsorship Level
     if(r.lk==="Speculative"){
       let amt=0,src="";
-      if(samt>0){amt=samt;src="amount entered";}
+      if(!isBlank(r.samt)){amt=samt;src="amount entered";}
       else if(TIER_AMT[r.tgt]){amt=TIER_AMT[r.tgt];src="target: "+r.tgt.replace(/\s*\(.*\)/,"");}
       else if(TIER_AMT[r.lvl]){amt=TIER_AMT[r.lvl];src="level: "+r.lvl.replace(/\s*\(.*\)/,"");}
       amt=Math.max(0,amt-door);
@@ -383,7 +392,7 @@ function recompute(){
     // NEEDS ATTENTION — money in that isn't counted above
     if(door>0&&!isAddl&&(!hasLvl||!confirmed)){attn+=door;attnList.push({label:dispName(r),note:r.lk||"no likelihood",amt:door});}
 
-    if(isOfficial(r)){offCount++;offAmt+=Math.max(samt,TIER_AMT[r.lvl]||0);}
+    if(isOfficial(r)){offCount++;offAmt+= isBlank(r.samt) ? (TIER_AMT[r.lvl]||0) : samt;}
   });
   plList.sort((a,b)=>b.amt-a.amt); spList.sort((a,b)=>b.amt-a.amt); attnList.sort((a,b)=>b.amt-a.amt);
 
@@ -405,7 +414,7 @@ function recompute(){
   document.getElementById("b-sp").style.width=(spec/scale*100)+"%";
   const gm=document.getElementById("b-goal");
   if(everything>GOAL){gm.style.display="block";gm.style.left=(GOAL/scale*100)+"%";} else {gm.style.display="none";}
-  S("g-scale",usd(scale));
+  LAST_SCALE=scale; drawTicks();
 
   // financial summary drop-downs
   S("s-in",usd(inDoor)); S("s-pl",usd(pledged)); S("s-sp",usd(spec)); S("s-attn",usd(attn));
@@ -426,6 +435,27 @@ function recompute(){
   S("sp-count",offCount);S("sp-amt",usd(offAmt));
   renderSponsors();
 }
+
+// scale ticks: every $50k if there's room, otherwise $100k (or wider for very large totals)
+let LAST_SCALE=500000;
+const short=n=>n>=1000000?"$"+(n/1000000).toFixed(n%1000000?1:0)+"M":n>=1000?"$"+Math.round(n/1000)+"k":"$"+n;
+function drawTicks(){
+  const host=document.getElementById("g-ticks"); if(!host) return;
+  const w=host.clientWidth||500, scale=LAST_SCALE;
+  const maxLabels=Math.max(2,Math.floor(w/52));
+  const steps=[50000,100000,250000,500000,1000000,2500000];
+  let step=steps.find(st=>scale/st<=maxLabels)||steps[steps.length-1];
+  let html="";
+  for(let v=0; v<=scale+0.5; v+=step){
+    const cls=v===0?"tk first":(scale-v<step*0.35&&v!==scale?"":"tk");
+    if(!cls) continue;                              // skip a tick crowding the end label
+    const isLast=Math.abs(scale-v)<0.5;
+    html+=`<span class="${isLast?"tk last":cls}" style="left:${v/scale*100}%">${short(v)}</span>`;
+  }
+  if(scale%step!==0) html+=`<span class="tk last" style="left:100%">${short(scale)}</span>`;
+  host.innerHTML=html;
+}
+window.addEventListener("resize",drawTicks);
 
 function renderSponsors(){
   const host=document.getElementById("sponsors");host.innerHTML="";
@@ -470,7 +500,7 @@ function fieldInput(f,r){
   if(f.type==="tier") return `<select data-k="${k}"><option value=""></option>${TIERS.map(t=>`<option ${t===v?"selected":""}>${esc(t)}</option>`).join("")}</select>`;
   if(f.type==="lk")   return `<select data-k="${k}">${LIKELIHOOD.map(t=>`<option value="${esc(t)}" ${t===v?"selected":""}>${esc(t||"—")}</option>`).join("")}</select>`;
   if(f.type==="yn")   return `<select data-k="${k}">${YESNO.map(t=>`<option value="${esc(t)}" ${t===v?"selected":""}>${esc(t||"—")}</option>`).join("")}</select>`;
-  if(f.type==="money")return `<input data-k="${k}" type="text" inputmode="numeric" value="${esc(num(v)?usd(num(v)):"")}" placeholder="—">`;
+  if(f.type==="money")return `<input data-k="${k}" type="text" inputmode="numeric" value="${esc(isBlank(v)?"":usd(num(v)))}" placeholder="— not entered">`;
   if(f.type==="num")  return `<input data-k="${k}" type="text" inputmode="numeric" value="${esc(v||"")}" placeholder="—">`;
   if(f.type==="textarea") return `<textarea data-k="${k}" placeholder="—">${esc(v)}</textarea>`;
   return `<input data-k="${k}" type="text" value="${esc(v)}" placeholder="—">`;
