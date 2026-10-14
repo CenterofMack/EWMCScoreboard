@@ -8,133 +8,149 @@
 <script src="https://sky.blackbaudcdn.net/static/sky-addin-client/1/sky-addin-client.umd.min.js"></script>
 <style>
   :root{
-    --ink:#1c2330; --ink-soft:#5a6472; --parchment:#f7f4ee; --card:#fffdf9;
-    --line:#e4ddd0; --gold:#a9852f; --gold-soft:#f2e9d4;
-    --edit:#1b6fb3; --edit-bg:#eaf3fb; --re:#c98a3a; --re-bg:#fbf2e6;
+    /* Projections palette: navy header band, Excel blues, light blue banding */
+    --navy:#1F3864; --blue:#2F5597; --mid:#5B9BD5; --pale:#BDD7EE; --wash:#DCE6F1;
+    --ink:#1c2533; --ink-soft:#5a6578; --page:#f3f6fa; --card:#ffffff; --line:#d6dfea;
+    --edit:#2F5597; --edit-bg:#eaf1fa; --re:#c98a3a; --re-bg:#fbf2e6;
     --good:#2f7d54; --warn:#b06a1b; --dead:#9a3838; --radius:10px;
   }
   *{box-sizing:border-box;}
-  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:var(--parchment);padding:20px;line-height:1.45;}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:var(--page);padding:20px;line-height:1.45;}
   @media (prefers-reduced-motion:reduce){*{transition:none!important;}}
   .tile{max-width:1240px;margin:0 auto;}
 
   .head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:16px;}
-  .eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:600;margin:0 0 2px;}
-  .title{font-family:ui-serif,Georgia,"Times New Roman",serif;font-weight:600;font-size:29px;line-height:1.05;margin:0;}
-  .title em{font-style:italic;font-weight:400;}
+  .eyebrow{font-size:12px;letter-spacing:.04em;color:var(--blue);font-weight:600;margin:0 0 2px;}
+  .title{font-family:ui-serif,Georgia,"Times New Roman",serif;font-weight:600;font-size:29px;line-height:1.05;margin:0;color:var(--navy);}
   .sample{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--warn);background:#fdf3e4;border:1px solid #f0dcc0;padding:4px 9px;border-radius:999px;}
   .sample::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--warn);}
   .live{color:var(--good);background:#eaf5ee;border-color:#c7e4d3;}
   .live::before{background:var(--good);}
 
-  .section-label{font-family:ui-serif,Georgia,"Times New Roman",serif;font-size:16px;font-weight:600;margin:36px 0 14px;padding-top:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:relative;border-top:2px solid var(--ink);}
-  .section-label::before{content:"";position:absolute;top:-2px;left:0;width:78px;height:2px;background:var(--gold);}
-  .section-label::after{content:"◆";position:absolute;top:-11px;left:84px;font-size:10px;color:var(--gold);background:var(--parchment);padding:0 5px;}
-  .section-label span{font-size:11px;font-weight:600;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--ink-soft);letter-spacing:.03em;}
+  .section-label{font-family:ui-serif,Georgia,"Times New Roman",serif;font-size:17px;font-weight:600;color:var(--navy);margin:34px 0 12px;padding:9px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--wash);border-left:4px solid var(--navy);border-radius:4px;}
+  .section-label span{font-size:12px;font-weight:500;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--ink-soft);}
 
   /* ---------- GOAL HERO ---------- */
-  .hero{background:linear-gradient(135deg,#1c2330,#2b3547);color:#fff;border-radius:14px;padding:20px 24px;box-shadow:0 4px 18px rgba(28,35,48,.18);}
-  .hero .htop{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:14px;}
-  .hero .hlbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#aeb8c6;font-weight:600;margin-bottom:4px;}
-  .hero .hbig{font-family:ui-serif,Georgia,"Times New Roman",serif;font-size:40px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums;}
-  .hero .hof{font-size:17px;color:#9aa5b4;font-weight:400;}
-  .hero .hpct{font-family:ui-serif,Georgia,"Times New Roman",serif;font-size:40px;font-weight:600;color:var(--gold);line-height:1;}
-  .hero .hpct small{display:block;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#8f9bab;text-align:right;font-weight:600;margin-top:2px;}
-  .hbar{height:12px;background:rgba(255,255,255,.12);border-radius:999px;overflow:hidden;}
-  .hbar span{display:block;height:100%;background:linear-gradient(90deg,var(--gold),#d8b45e);width:0;transition:width .6s;}
-  .hbar.proj{height:5px;margin-top:5px;background:transparent;}
-  .hbar.proj span{background:repeating-linear-gradient(90deg,#d8b45e 0 6px,transparent 6px 11px);opacity:.75;}
-  .hsub{display:flex;justify-content:space-between;font-size:12px;color:#aeb8c6;margin-top:10px;flex-wrap:wrap;gap:8px;}
-  .hsub b{color:#eef1f5;font-variant-numeric:tabular-nums;}
-  .hsub .maps{color:#8f9bab;font-style:italic;}
+  .hero{background:var(--card);border:1px solid var(--line);border-top:6px solid var(--navy);border-radius:12px;padding:20px 24px 18px;box-shadow:0 3px 14px rgba(31,56,100,.08);}
+  .hero .htop{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:16px;}
+  .hero .hlbl{font-size:13px;color:var(--ink-soft);font-weight:500;margin-bottom:4px;}
+  .hero .hbig{font-family:ui-serif,Georgia,"Times New Roman",serif;font-size:42px;font-weight:600;line-height:1;color:var(--navy);font-variant-numeric:tabular-nums;}
+  .hero .hof{font-size:17px;color:var(--ink-soft);font-weight:400;}
+  .hero .hpct{font-family:ui-serif,Georgia,"Times New Roman",serif;font-size:34px;font-weight:600;color:var(--blue);line-height:1;text-align:right;font-variant-numeric:tabular-nums;}
+  .hero .hpct small{display:block;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:12px;color:var(--ink-soft);font-weight:500;margin-top:4px;}
 
-  /* ---------- STATEMENT ---------- */
-  .stmt{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;}
-  .grp{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;}
-  .grp .ghd{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:8px;padding-bottom:7px;border-bottom:1px solid var(--line);}
-  .li{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:4px 0;font-size:13px;}
+  .gbar{position:relative;height:22px;background:#eef2f7;border-radius:6px;overflow:visible;}
+  .gbar .segs{display:flex;height:100%;border-radius:6px;overflow:hidden;}
+  .gbar .seg{height:100%;width:0;transition:width .6s;}
+  .seg-in{background:var(--navy);}
+  .seg-pl{background:var(--mid);}
+  .seg-sp{background:repeating-linear-gradient(135deg,var(--pale) 0 6px,#e3eef8 6px 11px);}
+  .gbar .gmark{position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--ink);display:none;}
+  .gbar .gmark::after{content:"Goal";position:absolute;top:-17px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:600;color:var(--ink);}
+  .gscale{display:flex;justify-content:space-between;font-size:11px;color:var(--ink-soft);margin-top:5px;font-variant-numeric:tabular-nums;}
+
+  .legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-top:14px;}
+  .lg{display:flex;gap:9px;align-items:flex-start;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:#fafcfe;}
+  .lg .sw{width:14px;height:14px;border-radius:3px;flex-shrink:0;margin-top:3px;}
+  .lg .lt{font-size:12.5px;color:var(--ink-soft);line-height:1.3;}
+  .lg .lv{font-size:17px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;}
+  .lg .lv small{font-size:11.5px;font-weight:500;color:var(--ink-soft);margin-left:4px;}
+  .hfoot{margin-top:12px;font-size:13px;color:var(--ink-soft);}
+  .hfoot b{color:var(--navy);font-variant-numeric:tabular-nums;}
+
+  /* ---------- FINANCIAL SUMMARY (drop-downs) ---------- */
+  .fs{display:flex;flex-direction:column;gap:8px;}
+  .fs details{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
+  .fs summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:11px;padding:12px 16px;}
+  .fs summary::-webkit-details-marker{display:none;}
+  .fs summary:hover{background:#f7f9fc;}
+  .fs details[open] summary{background:var(--wash);border-bottom:1px solid var(--line);}
+  .fs .sw{width:14px;height:14px;border-radius:3px;flex-shrink:0;}
+  .fs .st{flex:1;font-weight:600;font-size:14px;color:var(--navy);}
+  .fs .st small{display:block;font-weight:400;font-size:12px;color:var(--ink-soft);}
+  .fs .sv{font-size:16px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink);}
+  .fs .chev{color:var(--ink-soft);font-size:18px;transition:transform .2s;}
+  .fs details[open] .chev{transform:rotate(90deg);color:var(--blue);}
+  .fs .body{padding:8px 16px 12px;}
+  .li{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:5px 0;font-size:13px;border-bottom:1px dotted #e3e9f1;}
+  .li:last-child{border-bottom:none;}
   .li span{color:var(--ink-soft);}
+  .li span em{font-style:normal;font-size:11px;color:#8a94a6;margin-left:6px;}
   .li b{font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;}
-  .grp.attn{border-color:#e7c9c1;background:#fdf5f3;}
-  .grp.attn .ghd{color:var(--dead);border-color:#eecfc8;}
-  .grp.attn .li span{color:#7e4a41;}
-  .grp.attn .li b{color:var(--dead);}
-  .grp.totals{background:#1c2330;border-color:#1c2330;}
-  .grp.totals .ghd{color:var(--gold);border-color:rgba(255,255,255,.15);}
-  .grp.totals .li span{color:#b9c2cf;}
-  .grp.totals .li b{color:#fff;font-size:15px;}
-  .grp.goal .ghd{color:var(--ink-soft);}
+  .li.tot{border-top:1px solid var(--line);border-bottom:none;margin-top:4px;padding-top:8px;}
+  .li.tot span{color:var(--navy);font-weight:600;}
+  .fs .empty{font-size:12.5px;color:#9aa3b2;font-style:italic;padding:6px 0;}
+  .fs details.attn{border-color:#e7c9c1;}
+  .fs details.attn .st{color:var(--dead);}
+  .fs details.attn .sv{color:var(--dead);}
 
   /* ---------- OFFICIAL SPONSORS ---------- */
   .sptotal{display:inline-flex;gap:8px;align-items:baseline;font-size:12px;color:var(--ink-soft);}
-  .sptotal b{font-family:ui-serif,Georgia,"Times New Roman",serif;font-size:15px;color:var(--gold);}
+  .sptotal b{font-family:ui-serif,Georgia,"Times New Roman",serif;font-size:15px;color:var(--blue);}
   .sponsors{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;}
   .scol{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;}
-  .scol h3{font-size:12.5px;margin:0 0 8px;font-weight:600;display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding-bottom:6px;border-bottom:1px solid var(--line);}
+  .scol h3{font-size:12.5px;margin:0 0 8px;font-weight:600;display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding-bottom:6px;border-bottom:1px solid var(--line);color:var(--navy);}
   .scol h3 .cnt{font-size:11px;color:var(--ink-soft);font-weight:600;}
-  .scol .tieramt{font-size:10.5px;color:var(--gold);font-weight:600;margin:-4px 0 6px;}
+  .scol .tieramt{font-size:11px;color:var(--blue);font-weight:600;margin:-4px 0 6px;}
   .scol ul{margin:0;padding:0;list-style:none;font-size:12.5px;}
-  .scol li{padding:3px 0;border-bottom:1px dotted #ece5d6;}
+  .scol li{padding:3px 0;border-bottom:1px dotted #e3e9f1;}
   .scol li:last-child{border-bottom:none;}
-  .scol .none{color:#b3ab99;font-style:italic;font-size:12px;}
+  .scol .none{color:#a7afbd;font-style:italic;font-size:12px;}
   .scol li.needs-names{color:var(--dead);}
-  .scol li .nn-flag{font-size:8px;letter-spacing:0;text-transform:none;color:var(--dead);font-weight:700;margin-left:5px;opacity:.85;white-space:nowrap;}
+  .scol li .nn-flag{font-size:8px;color:var(--dead);font-weight:700;margin-left:5px;opacity:.85;white-space:nowrap;}
 
   /* ---------- ROSTER (tap to edit) ---------- */
-  .roster-cap{font-size:11.5px;color:var(--ink-soft);display:flex;align-items:center;gap:7px;margin-bottom:10px;}
-  .roster-cap .kbox{width:11px;height:11px;border-radius:3px;background:var(--edit-bg);border:1px solid var(--edit);display:inline-block;}
   .roster{display:flex;flex-direction:column;gap:8px;}
   .rcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
-  .rcard.open{border-color:#cfe0ef;box-shadow:0 2px 10px rgba(27,111,179,.08);}
+  .rcard.open{border-color:#b9cde6;box-shadow:0 2px 10px rgba(47,85,151,.10);}
   .rc-summary{width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;background:none;border:none;cursor:pointer;text-align:left;font:inherit;}
-  .rc-summary:hover{background:#faf8f2;}
-  .rcard.open .rc-summary{background:#f3f7fb;}
+  .rc-summary:hover{background:#f7f9fc;}
+  .rcard.open .rc-summary{background:var(--wash);}
   .rc-left{display:flex;flex-direction:column;gap:2px;min-width:0;}
   .rc-name{font-weight:600;color:var(--ink);font-size:14px;}
   .rc-meta{font-size:12px;color:var(--ink-soft);}
   .rc-right{display:flex;align-items:center;gap:11px;flex-shrink:0;}
   .rc-amt{font-size:13px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;text-align:right;display:flex;flex-direction:column;line-height:1.15;}
-  .rc-amt small{font-size:8.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);}
+  .rc-amt small{font-size:9.5px;font-weight:600;color:var(--ink-soft);}
   .rc-chev{color:var(--ink-soft);font-size:18px;line-height:1;transition:transform .2s;}
   .rcard.open .rc-chev{transform:rotate(90deg);color:var(--edit);}
   .lk{font-size:10px;font-weight:600;padding:2px 7px;border-radius:999px;white-space:nowrap;}
   .lk-Confirmed{background:#e2f0e8;color:var(--good);}
   .lk-NeedNames{background:#fbf0d8;color:#8a6d1b;}
-  .lk-Speculative{background:#fbeede;color:var(--warn);}
+  .lk-Speculative{background:#e6effa;color:var(--blue);}
   .lk-Unlikely{background:#f2e6e6;color:var(--dead);}
   .lk-Declined{background:#eceae7;color:#7a7a7a;}
 
-  .rc-editor{border-top:1px solid var(--line);padding:14px;background:#fcfaf6;}
+  .rc-editor{border-top:1px solid var(--line);padding:14px;background:#fafcfe;}
   .ep-context{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:9px 14px;padding:11px 13px;background:var(--re-bg);border:1px solid #f0e0cb;border-radius:8px;margin-bottom:15px;}
   .ep-cx{display:flex;flex-direction:column;gap:1px;min-width:0;}
-  .ep-cx .l{font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:var(--re);font-weight:700;}
+  .ep-cx .l{font-size:10px;color:var(--re);font-weight:700;}
   .ep-cx .v{font-size:12.5px;color:#6b4e28;font-weight:500;overflow-wrap:anywhere;}
   .ep-note{font-size:10.5px;color:var(--re);font-style:italic;margin:-8px 0 14px;}
   .ep-fields{display:flex;flex-direction:column;gap:12px;}
   .ep-f{display:flex;flex-direction:column;gap:4px;}
-  .ep-f label{font-size:11px;font-weight:700;color:var(--edit);letter-spacing:.02em;text-transform:uppercase;}
-  .ep-f input,.ep-f select,.ep-f textarea{font:inherit;font-size:13px;color:var(--ink);background:#fff;border:1px solid #cfe0ef;border-radius:7px;padding:8px 10px;width:100%;}
-  .ep-f input:focus,.ep-f select:focus,.ep-f textarea:focus{outline:none;border-color:var(--edit);box-shadow:0 0 0 3px rgba(27,111,179,.14);}
+  .ep-f label{font-size:12px;font-weight:700;color:var(--edit);}
+  .ep-f input,.ep-f select,.ep-f textarea{font:inherit;font-size:13px;color:var(--ink);background:#fff;border:1px solid #c5d6ec;border-radius:7px;padding:8px 10px;width:100%;}
+  .ep-f input:focus,.ep-f select:focus,.ep-f textarea:focus{outline:none;border-color:var(--edit);box-shadow:0 0 0 3px rgba(47,85,151,.14);}
   .ep-f textarea{resize:vertical;min-height:54px;}
   .ep-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;}
   .ep-cancel{font:inherit;font-size:13px;font-weight:600;color:var(--ink-soft);background:none;border:1px solid var(--line);border-radius:8px;padding:8px 14px;cursor:pointer;}
-  .ep-cancel:hover{background:#f0ece3;}
+  .ep-cancel:hover{background:#eef2f7;}
   .ep-save{font:inherit;font-size:13px;font-weight:600;color:#fff;background:var(--edit);border:none;border-radius:8px;padding:8px 16px;cursor:pointer;}
-  .ep-save:hover{background:#155a93;}
+  .ep-save:hover{background:var(--navy);}
 
-  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:11px 18px;border-radius:9px;font-size:13px;font-weight:500;opacity:0;pointer-events:none;transition:all .3s;box-shadow:0 8px 24px rgba(0,0,0,.22);max-width:90vw;z-index:50;}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:11px 18px;border-radius:9px;font-size:13px;font-weight:500;opacity:0;pointer-events:none;transition:all .3s;box-shadow:0 8px 24px rgba(0,0,0,.22);max-width:90vw;z-index:50;}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-  .toast code{background:rgba(255,255,255,.15);padding:1px 5px;border-radius:4px;}
 
   .filters{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
   .filters input,.filters select{font:inherit;font-size:13px;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 10px;}
   .filters input{flex:1 1 170px;min-width:0;}
-  .filters input:focus,.filters select:focus{outline:none;border-color:var(--edit);box-shadow:0 0 0 3px rgba(27,111,179,.12);}
+  .filters input:focus,.filters select:focus{outline:none;border-color:var(--edit);box-shadow:0 0 0 3px rgba(47,85,151,.12);}
   .filters #f-clear{cursor:pointer;color:var(--ink-soft);font-weight:600;background:none;}
-  .filters #f-clear:hover{background:#f0ece3;}
-  .roster-count{font-size:11.5px;color:var(--ink-soft);margin-bottom:8px;font-variant-numeric:tabular-nums;}
+  .filters #f-clear:hover{background:#eef2f7;}
+  .roster-count{font-size:12px;color:var(--ink-soft);margin-bottom:8px;font-variant-numeric:tabular-nums;}
   .roster-more{margin-top:10px;}
-  .roster-more button{font:inherit;font-size:13px;font-weight:600;color:var(--edit);background:#fff;border:1px solid #cfe0ef;border-radius:8px;padding:10px 18px;cursor:pointer;width:100%;}
+  .roster-more button{font:inherit;font-size:13px;font-weight:600;color:var(--edit);background:#fff;border:1px solid #c5d6ec;border-radius:8px;padding:10px 18px;cursor:pointer;width:100%;}
   .roster-more button:hover{background:var(--edit-bg);}
   .roster-empty{padding:22px;text-align:center;color:var(--ink-soft);font-size:13px;font-style:italic;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);}
 
@@ -144,23 +160,20 @@
   .state .st-title{font-weight:600;color:var(--ink);font-size:15px;margin-bottom:6px;}
   .state.err .st-title{color:var(--dead);}
   .state .st-detail{font-size:12px;margin-top:8px;font-family:ui-monospace,Menlo,Consolas,monospace;word-break:break-word;opacity:.8;}
-  .spin{display:inline-block;width:18px;height:18px;border:2px solid var(--line);border-top-color:var(--gold);border-radius:50%;animation:sp .8s linear infinite;vertical-align:-4px;margin-right:8px;}
+  .spin{display:inline-block;width:18px;height:18px;border:2px solid var(--line);border-top-color:var(--blue);border-radius:50%;animation:sp .8s linear infinite;vertical-align:-4px;margin-right:8px;}
   @keyframes sp{to{transform:rotate(360deg);}}
   @media (prefers-reduced-motion:reduce){.spin{animation:none;}}
 
   /* Narrow-column mode */
   @media (max-width:720px){
     body{padding:12px;}
-    .head{margin-bottom:12px;}
     .title{font-size:23px;}
-    .hero{padding:15px 17px;}
-    .hero .htop{margin-bottom:11px;}
-    .hero .hbig{font-size:29px;}
-    .hero .hof{font-size:15px;}
-    .hero .hpct{font-size:29px;}
-    .hero .hsub{font-size:11px;}
-    .section-label{font-size:15px;margin:26px 0 11px;}
-    .stmt{grid-template-columns:1fr;}
+    .hero{padding:15px 16px;}
+    .hero .hbig{font-size:30px;}
+    .hero .hof{font-size:14px;}
+    .hero .hpct{font-size:26px;}
+    .legend{grid-template-columns:1fr;}
+    .section-label{font-size:15px;margin:24px 0 10px;}
     .sponsors{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;}
     .ep-context{grid-template-columns:1fr 1fr;}
   }
@@ -176,7 +189,7 @@
   <div class="head">
     <div>
       <p class="eyebrow">Campaign 27-EWMC · Sponsorship Scoreboard</p>
-      <h1 class="title">EWMC <em>2027</em> — an Evening with Mackinac Center</h1>
+      <h1 class="title">EWMC 2027 — an Evening with Mackinac Center</h1>
     </div>
     <span class="sample live" id="live-badge">Live data — from Raiser's Edge via SharePoint</span>
   </div>
@@ -188,43 +201,49 @@
         <div class="hlbl">Raised toward event goal</div>
         <div class="hbig"><span id="g-in">$0</span> <span class="hof">of <span id="g-goal">$500,000</span></span></div>
       </div>
-      <div class="hpct"><span id="g-pct">0%</span><small>in the door</small></div>
+      <div class="hpct"><span id="g-pct">0%</span><small>of goal in the door</small></div>
     </div>
-    <div class="hbar"><span id="g-bar"></span></div>
-    <div class="hbar proj"><span id="g-barproj"></span></div>
-    <div class="hsub">
-      <span><b id="g-proj">$0</b> projected if speculative asks land (<span id="g-ppct">0%</span>)</span>
+    <div class="gbar" aria-hidden="true">
+      <div class="segs">
+        <span class="seg seg-in" id="b-in"></span>
+        <span class="seg seg-pl" id="b-pl"></span>
+        <span class="seg seg-sp" id="b-sp"></span>
+      </div>
+      <span class="gmark" id="b-goal"></span>
     </div>
+    <div class="gscale"><span>$0</span><span id="g-scale">$500,000</span></div>
+
+    <div class="legend">
+      <div class="lg"><span class="sw seg-in"></span><div><div class="lt">In the door</div><div class="lv"><span id="l-in">$0</span><small id="l-in-p">0%</small></div></div></div>
+      <div class="lg"><span class="sw seg-pl"></span><div><div class="lt">Pledged, not yet in</div><div class="lv"><span id="l-pl">$0</span><small id="l-pl-p">0%</small></div></div></div>
+      <div class="lg"><span class="sw seg-sp"></span><div><div class="lt">Speculative, no pledge yet</div><div class="lv"><span id="l-sp">$0</span><small id="l-sp-p">0%</small></div></div></div>
+    </div>
+    <div class="hfoot">If every pledge and speculative ask lands: <b id="g-all">$0</b> (<span id="g-all-p">0%</span> of goal)</div>
   </div>
 
-  <!-- FINANCIAL STATEMENT -->
-  <div class="section-label">Financial Summary <span>· grouped the way the Overview sheet reads · recomputes live</span></div>
-  <div class="stmt">
-    <div class="grp">
-      <div class="ghd">Sponsorships</div>
-      <div class="li"><span>Projected + In</span><b id="f-proj">$0</b></div>
-      <div class="li"><span>Money In — in the door</span><b id="f-in">$0</b></div>
-    </div>
-    <div class="grp">
-      <div class="ghd">Other Income</div>
-      <div class="li"><span>Additional Donations</span><b id="f-add">$0</b></div>
-      <div class="li"><span>Ticket Sales</span><b id="f-tix">$0</b></div>
-    </div>
-    <div class="grp attn">
-      <div class="ghd">⚠ Needs Attention</div>
-      <div class="li"><span>Money in, not yet counted — untagged or unconfirmed</span><b id="f-attn">$0</b></div>
-    </div>
-    <div class="grp totals">
-      <div class="ghd">Totals</div>
-      <div class="li"><span>Total Raised — actually in</span><b id="f-total">$0</b></div>
-      <div class="li"><span>Projected &amp; Money In</span><b id="f-ptotal">$0</b></div>
-    </div>
-    <div class="grp goal">
-      <div class="ghd">Vs. Goal</div>
-      <div class="li"><span>Event Goal</span><b id="f-goal">$500,000</b></div>
-      <div class="li"><span>Deficit / Surplus</span><b id="f-def">$0</b></div>
-      <div class="li"><span>Projected Deficit / Surplus</span><b id="f-pdef">$0</b></div>
-    </div>
+  <!-- FINANCIAL SUMMARY -->
+  <div class="section-label">Financial Summary <span>tap a line to see what's in it</span></div>
+  <div class="fs">
+    <details>
+      <summary><span class="sw seg-in"></span><span class="st">In the door<small>Money received</small></span><span class="sv" id="s-in">$0</span><span class="chev">›</span></summary>
+      <div class="body" id="d-in"></div>
+    </details>
+    <details>
+      <summary><span class="sw seg-pl"></span><span class="st">Pledged, not yet in<small>Confirmed sponsors still owing</small></span><span class="sv" id="s-pl">$0</span><span class="chev">›</span></summary>
+      <div class="body" id="d-pl"></div>
+    </details>
+    <details>
+      <summary><span class="sw seg-sp"></span><span class="st">Speculative<small>Marked Speculative: Sponsorship Amount if entered, otherwise the Target Sponsorship Level</small></span><span class="sv" id="s-sp">$0</span><span class="chev">›</span></summary>
+      <div class="body" id="d-sp"></div>
+    </details>
+    <details class="attn" id="attn-box">
+      <summary><span class="sw" style="background:var(--dead)"></span><span class="st">⚠ Needs attention<small>Money in, not yet counted: untagged or unconfirmed</small></span><span class="sv" id="s-attn">$0</span><span class="chev">›</span></summary>
+      <div class="body" id="d-attn"></div>
+    </details>
+    <details>
+      <summary><span class="sw" style="background:var(--ink)"></span><span class="st">Vs. goal<small>Where each stage leaves us</small></span><span class="sv" id="s-goal">$500,000</span><span class="chev">›</span></summary>
+      <div class="body" id="d-goal"></div>
+    </details>
   </div>
 
   <!-- OFFICIAL SPONSORS -->
@@ -234,7 +253,7 @@
   <div class="sponsors" id="sponsors"></div>
 
   <!-- ROSTER -->
-  <div class="section-label">Sponsorship Dashboard <span>· tap a sponsor to edit</span></div>
+  <div class="section-label">Sponsorship Dashboard <span>tap a sponsor to edit</span></div>
   <div class="filters">
     <input id="f-search" type="search" placeholder="Search sponsor name…">
     <select id="f-fund"><option value="">All fundraisers</option></select>
@@ -252,9 +271,7 @@
 const TIERS=["Presenting Sponsor ($200k)","Sacred Honor ($100k)","Patriot ($50k)","Liberty ($25k)","Freedom ($10k)","Justice ($5k)","Additional Donation"];
 const TIER_AMT={"Presenting Sponsor ($200k)":200000,"Sacred Honor ($100k)":100000,"Patriot ($50k)":50000,"Liberty ($25k)":25000,"Freedom ($10k)":10000,"Justice ($5k)":5000,"Additional Donation":0};
 const LIKELIHOOD=["","Confirmed","Confirmed - Need Names","Speculative","Unlikely","Declined"];
-// maps each likelihood to a safe CSS class suffix (values have spaces/hyphens, so can't be used as class names directly)
 const LK_CLASS={"Confirmed":"Confirmed","Confirmed - Need Names":"NeedNames","Speculative":"Speculative","Unlikely":"Unlikely","Declined":"Declined"};
-// shorter labels for the compact roster badge (full value is still what's stored/written back)
 const LK_SHORT={"Confirmed":"Confirmed","Confirmed - Need Names":"Confirmed · needs names","Speculative":"Speculative","Unlikely":"Unlikely","Declined":"Declined"};
 const YESNO=["","Yes","No"];
 let GOAL=500000, TICKETS=0;   // defaults; overridden by the flow when it sends live values
@@ -280,25 +297,15 @@ const ORANGE=[
 ];
 
 /* -------------------------------------------------------------------------
-   LIVE DATA
-   `data` now starts empty and is filled from the Power Automate flow.
-   The flow validates the user's identity token, reads Table1 from the
-   SharePoint workbook, and returns the rows. We map each Excel column
-   header onto the short field keys the tile already uses.
+   LIVE DATA — filled from the Power Automate flow (unchanged).
    ------------------------------------------------------------------------- */
 let data = [];
 
-// Your flow's URL (same one the smoke test proved out).
 const FLOW_URL = 'https://default3877db98b5154133ac939a6ce4072c.91.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/25/workflows/40df9f6fc9dd40eba3bff91166ae5d9a/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=lRV4iYjBKOtzb-9ZtI2j9E6b2vOlWGCz0KgjMVoKJFE';
 
-// Write-back endpoint (the EWMC Save Row flow: validate -> update the row).
 const WRITE_FLOW_URL = 'https://default3877db98b5154133ac939a6ce4072c.91.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/24/workflows/7473b87ce1874cd8a5a3dce27fd1e333/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=ym8F4zCInbnhazyBAyoQp7DWGJisS2AuR9sOKKl5vC8';
-// tile field key -> the exact Excel header the write flow's Parse JSON expects
 const SAVE_MAP = { tgt:"Target Sponsorship Level", lk:"Sponsorship Likelihood", lvl:"Sponsorship Level", samt:"Sponsorship Amount", sname:"Sponsoring Name", inv:"Invoice Created", guests:"Projected # of Guests", notes:"Additional Notes" };
 
-// Maps an Excel column header (exactly as it appears in Table1) to a tile field key.
-// Left = the header text in your workbook; right = the key the tile uses.
-// If a header ever gets renamed in Excel, update it here.
 const COLMAP = {
   "Constituent ID":          "cid",
   "Constituent Name":        "name",
@@ -322,7 +329,6 @@ const COLMAP = {
   "Additional Notes":        "notes",
 };
 
-// Turn one Excel row object into the tile's row shape.
 function mapRow(xl){
   const r = {cid:"", name:"", pc:"", fund:"", tgt:"", fa:"", ra:"", pd:"", pa:0, ps:"",
              who:"", lk:"", lvl:"", samt:0, sname:"", pledge:0, door:0, inv:"", guests:0, notes:""};
@@ -331,47 +337,106 @@ function mapRow(xl){
       r[COLMAP[header]] = xl[header];
     }
   }
-  // numeric fields: strip $ and commas so the math works
   ["pa","samt","pledge","door","guests"].forEach(k=>{ r[k] = num(r[k]); });
   return r;
 }
 
 const num=v=>Number(String(v??"").replace(/[^0-9.\-]/g,""))||0;
 const usd=n=>"$"+Math.round(n).toLocaleString("en-US");
+// one decimal under 10% so small progress doesn't read as 0%
+const pctTxt=v=>{ if(!isFinite(v)||v<=0) return "0%"; return (v<10? v.toFixed(1) : Math.round(v).toString())+"%"; };
 const esc=s=>String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
 const xldate=v=>{
   if(v===""||v==null) return "";
   const n=Number(v);
-  if(!isFinite(n)||n<1) return String(v);            // already a text date or non-numeric
-  const d=new Date(Math.round((n-25569)*86400000));  // Excel serial -> JS date (UTC)
+  if(!isFinite(n)||n<1) return String(v);
+  const d=new Date(Math.round((n-25569)*86400000));
   return isNaN(d)?String(v):((d.getUTCMonth()+1)+"/"+d.getUTCDate()+"/"+d.getUTCFullYear());
 };
+const dispName=r=>(r.sname&&String(r.sname).trim())?String(r.sname).trim():r.name;
 function isConfirmed(r){return String(r.lk||"").indexOf("Confirmed")===0;}
 function isOfficial(r){return isConfirmed(r) && r.lvl!=="" && r.lvl!=="Additional Donation";}
 
+function lines(items, totalLabel, total){
+  if(!items.length) return `<div class="empty">Nothing here yet.</div>`;
+  return items.map(x=>`<div class="li"><span>${esc(x.label)}${x.note?`<em>${esc(x.note)}</em>`:""}</span><b>${usd(x.amt)}</b></div>`).join("")+
+         (totalLabel?`<div class="li tot"><span>${esc(totalLabel)}</span><b>${usd(total)}</b></div>`:"");
+}
+
 function recompute(){
-  let proj=0,inDoor=0,addl=0,attn=0,offCount=0,offAmt=0;
+  let inSpons=0,addl=0,attn=0,pledged=0,spec=0,offCount=0,offAmt=0;
+  const plList=[],spList=[],attnList=[];
   data.forEach(r=>{
-    const door=num(r.door),samt=num(r.samt);
+    const door=num(r.door),samt=num(r.samt),pledge=num(r.pledge);
     const confirmed=isConfirmed(r),hasLvl=r.lvl!=="",isAddl=r.lvl==="Additional Donation";
-    if(confirmed&&hasLvl&&!isAddl){proj+=Math.max(samt,door);inDoor+=door;}
+
+    // IN THE DOOR — same rules as before
+    if(confirmed&&hasLvl&&!isAddl){inSpons+=door;}
     if(isAddl){addl+=door;}
-    if(door>0&&!isAddl&&(!hasLvl||!confirmed)){attn+=door;}
+
+    // PLEDGED, NOT YET IN — confirmed rows: the larger of Sponsorship Amount / RE pledge, less what's in the door
+    if(confirmed&&hasLvl){
+      const owed=Math.max(samt,pledge,door)-door;
+      if(owed>0){pledged+=owed;plList.push({label:dispName(r),note:r.lvl.replace(/\s*\(.*\)/,""),amt:owed});}
+    }
+
+    // SPECULATIVE — marked Speculative: Sponsorship Amount if typed, else Target level, else Sponsorship Level
+    if(r.lk==="Speculative"){
+      let amt=0,src="";
+      if(samt>0){amt=samt;src="amount entered";}
+      else if(TIER_AMT[r.tgt]){amt=TIER_AMT[r.tgt];src="target: "+r.tgt.replace(/\s*\(.*\)/,"");}
+      else if(TIER_AMT[r.lvl]){amt=TIER_AMT[r.lvl];src="level: "+r.lvl.replace(/\s*\(.*\)/,"");}
+      amt=Math.max(0,amt-door);
+      if(amt>0){spec+=amt;spList.push({label:dispName(r),note:src,amt});}
+    }
+
+    // NEEDS ATTENTION — money in that isn't counted above
+    if(door>0&&!isAddl&&(!hasLvl||!confirmed)){attn+=door;attnList.push({label:dispName(r),note:r.lk||"no likelihood",amt:door});}
+
     if(isOfficial(r)){offCount++;offAmt+=Math.max(samt,TIER_AMT[r.lvl]||0);}
   });
-  const total=inDoor+addl+TICKETS, ptotal=proj+addl+TICKETS;
-  const def=total-GOAL, pdef=ptotal-GOAL;
+  plList.sort((a,b)=>b.amt-a.amt); spList.sort((a,b)=>b.amt-a.amt); attnList.sort((a,b)=>b.amt-a.amt);
+
+  const inDoor=inSpons+addl+TICKETS;
+  const withPledges=inDoor+pledged;
+  const everything=withPledges+spec;
   const S=(id,v)=>document.getElementById(id).textContent=v;
-  S("f-proj",usd(proj));S("f-in",usd(inDoor));S("f-add",usd(addl));S("f-attn",usd(attn));
-  S("f-tix",usd(TICKETS));S("f-total",usd(total));S("f-ptotal",usd(ptotal));S("f-goal",usd(GOAL));
-  S("f-def",(def<0?"−":"+")+usd(Math.abs(def)));
-  S("f-pdef",(pdef<0?"−":"+")+usd(Math.abs(pdef)));
-  document.getElementById("f-def").style.color=def<0?"var(--dead)":"var(--good)";
-  document.getElementById("f-pdef").style.color=pdef<0?"var(--dead)":"var(--good)";
-  const pct=Math.min(100,Math.round(total/GOAL*100)),ppct=Math.min(100,Math.round(ptotal/GOAL*100));
-  S("g-in",usd(total));S("g-proj",usd(ptotal));S("g-goal",usd(GOAL));S("g-pct",pct+"%");S("g-ppct",ppct+"%");
-  document.getElementById("g-bar").style.width=pct+"%";
-  document.getElementById("g-barproj").style.width=ppct+"%";
+  const P=v=>GOAL>0? v/GOAL*100 : 0;
+
+  // hero
+  S("g-in",usd(inDoor)); S("g-goal",usd(GOAL)); S("g-pct",pctTxt(P(inDoor)));
+  S("l-in",usd(inDoor)); S("l-in-p",pctTxt(P(inDoor)));
+  S("l-pl",usd(pledged)); S("l-pl-p",pctTxt(P(pledged)));
+  S("l-sp",usd(spec)); S("l-sp-p",pctTxt(P(spec)));
+  S("g-all",usd(everything)); S("g-all-p",pctTxt(P(everything)));
+
+  // bar scales to the goal, or to the total if we're projected past it
+  const scale=Math.max(GOAL,everything,1);
+  document.getElementById("b-in").style.width=(inDoor/scale*100)+"%";
+  document.getElementById("b-pl").style.width=(pledged/scale*100)+"%";
+  document.getElementById("b-sp").style.width=(spec/scale*100)+"%";
+  const gm=document.getElementById("b-goal");
+  if(everything>GOAL){gm.style.display="block";gm.style.left=(GOAL/scale*100)+"%";} else {gm.style.display="none";}
+  S("g-scale",usd(scale));
+
+  // financial summary drop-downs
+  S("s-in",usd(inDoor)); S("s-pl",usd(pledged)); S("s-sp",usd(spec)); S("s-attn",usd(attn)); S("s-goal",usd(GOAL));
+  document.getElementById("d-in").innerHTML=
+    `<div class="li"><span>Sponsorships</span><b>${usd(inSpons)}</b></div>`+
+    `<div class="li"><span>Additional donations</span><b>${usd(addl)}</b></div>`+
+    `<div class="li"><span>Ticket sales</span><b>${usd(TICKETS)}</b></div>`+
+    `<div class="li tot"><span>Total in the door</span><b>${usd(inDoor)}</b></div>`;
+  document.getElementById("d-pl").innerHTML=lines(plList,"Total pledged, not yet in",pledged);
+  document.getElementById("d-sp").innerHTML=lines(spList,"Total speculative",spec);
+  document.getElementById("d-attn").innerHTML=lines(attnList,"Total needing attention",attn);
+  document.getElementById("attn-box").style.display=attn>0?"":"none";
+  const gap=v=>{const d=v-GOAL;return `<b style="color:${d<0?"var(--dead)":"var(--good)"}">${d<0?"−":"+"}${usd(Math.abs(d))}</b>`;};
+  document.getElementById("d-goal").innerHTML=
+    `<div class="li"><span>Event goal</span><b>${usd(GOAL)}</b></div>`+
+    `<div class="li"><span>Surplus / deficit, money in the door</span>${gap(inDoor)}</div>`+
+    `<div class="li"><span>Surplus / deficit, if pledges arrive</span>${gap(withPledges)}</div>`+
+    `<div class="li"><span>Surplus / deficit, if speculative asks land too</span>${gap(everything)}</div>`;
+
   S("sp-count",offCount);S("sp-amt",usd(offAmt));
   renderSponsors();
 }
@@ -384,7 +449,7 @@ function renderSponsors(){
     const tierAmt=TIER_AMT[t]?usd(TIER_AMT[t]):"—";
     const list=rows.length
       ? "<ul>"+rows.map(r=>{
-          const nm=r.sname&&r.sname.trim()?r.sname:r.name;
+          const nm=dispName(r);
           const needs=String(r.lk||"").indexOf("Confirmed")===0 && String(r.lk||"").indexOf("Need")>=0;
           return `<li class="${needs?"needs-names":""}">${esc(nm)}${needs?'<span class="nn-flag">(Needs Guest Names)</span>':""}</li>`;
         }).join("")+"</ul>"
@@ -395,7 +460,7 @@ function renderSponsors(){
   });
 }
 
-/* ---------- roster of tap-to-edit cards ---------- */
+/* ---------- roster of tap-to-edit cards (unchanged) ---------- */
 const PAGE=15;
 let fSearch="",fFund="",fLk="",shown=PAGE;
 function getFiltered(){
@@ -409,7 +474,6 @@ function getFiltered(){
 function populateFundraisers(){
   const set=[...new Set(data.map(r=>r.fund).filter(Boolean))].sort();
   const sel=document.getElementById("f-fund");
-  // reset to just the "All" option, then repopulate from live data
   sel.length = 1;
   set.forEach(f=>{const o=document.createElement("option");o.value=f;o.textContent=f;sel.appendChild(o);});
 }
@@ -495,7 +559,6 @@ function renderRoster(keepOpen){
       ed.addEventListener("input",reEnableSave);
       ed.addEventListener("change",reEnableSave);
       ed.querySelector(".ep-save").addEventListener("click",async ()=>{
-        // gather the edited blue fields into a patch (don't commit yet)
         const patch={};
         ed.querySelectorAll("[data-k]").forEach(inp=>{
           const k=inp.dataset.k, f=BLUE.find(b=>b.k===k);
@@ -513,7 +576,6 @@ function renderRoster(keepOpen){
           if(!res.ok) throw new Error("flow returned status "+res.status);
           const j=await res.json();
           if(!j || j.ok!==true) throw new Error("unexpected response");
-          // write succeeded -> commit locally, keep editor open, show "Saved ✓"
           Object.assign(data[i],patch);
           recompute();
           saveBtn.textContent="Saved ✓"; saveBtn.disabled=true;
@@ -541,7 +603,6 @@ function renderRoster(keepOpen){
 
 function toast(m){const t=document.getElementById("toast");t.innerHTML=m;t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),3600);}
 
-// Called once live rows are in `data` — renders the whole tile.
 function renderAll(){
   document.getElementById("gate").hidden = true;
   document.getElementById("tile").hidden = false;
@@ -550,7 +611,6 @@ function renderAll(){
   recompute();
 }
 
-// Show a friendly failure instead of wrong numbers.
 function showError(title, detail){
   const g = document.getElementById("gate");
   g.className = "state err";
@@ -559,7 +619,6 @@ function showError(title, detail){
                 (detail?`<div class="st-detail">${esc(detail)}</div>`:``);
 }
 
-// Show a status message.
 function showStatus(title, detail){
   const g = document.getElementById("gate");
   g.className = "state";
@@ -567,13 +626,12 @@ function showStatus(title, detail){
                 (detail?`<div class="st-detail">${esc(detail)}</div>`:``);
 }
 
-// wire up filters once (they act on whatever is in `data`)
 document.getElementById("f-search").addEventListener("input",e=>{fSearch=e.target.value.trim().toLowerCase();shown=PAGE;renderRoster();});
 document.getElementById("f-fund").addEventListener("change",e=>{fFund=e.target.value;shown=PAGE;renderRoster();});
 document.getElementById("f-lk").addEventListener("change",e=>{fLk=e.target.value;shown=PAGE;renderRoster();});
 document.getElementById("f-clear").addEventListener("click",()=>{fSearch=fFund=fLk="";shown=PAGE;["f-search","f-fund","f-lk"].forEach(id=>document.getElementById(id).value="");renderRoster();});
 
-/* ---------- fetch live rows through the flow ---------- */
+/* ---------- fetch live rows through the flow (unchanged) ---------- */
 function loadLive(uit){
   fetch(FLOW_URL, { method:'POST', headers:{'Content-Type':'text/plain'}, body:uit })
     .then(res=>{
@@ -581,22 +639,20 @@ function loadLive(uit){
       return res.json();
     })
     .then(payload=>{
-      // Accept the roster rows as a bare array, or under .rows / .value.
       const rows = Array.isArray(payload) ? payload
                  : (payload && Array.isArray(payload.rows))  ? payload.rows
                  : (payload && Array.isArray(payload.value)) ? payload.value
                  : null;
       if(!rows) throw new Error('unexpected response shape');
-      // If the flow also sends live financial inputs, use them instead of the defaults.
       if(payload && !Array.isArray(payload)){
         if(payload.tickets != null) TICKETS = num(payload.tickets);
-        else if(Array.isArray(payload.ticketRows))                       // live ticket sales from the TicketSales table
+        else if(Array.isArray(payload.ticketRows))
           TICKETS = payload.ticketRows.reduce((sum,row)=> sum + num(row["Ticket Sales"]), 0);
         if(payload.goal != null) GOAL = num(payload.goal);
-        else if(Array.isArray(payload.goalRows) && payload.goalRows.length)   // live event goal from the EventGoal table
+        else if(Array.isArray(payload.goalRows) && payload.goalRows.length)
           GOAL = num(payload.goalRows[0]["Event Goal"]);
       }
-      data = rows.map(mapRow).filter(r => (r.name||"").trim() !== "");  // drop blank rows
+      data = rows.map(mapRow).filter(r => (r.name||"").trim() !== "");
       renderAll();
     })
     .catch(err=>{
@@ -606,8 +662,7 @@ function loadLive(uit){
 </script>
 
 <script>
-/* SKY Add-in handshake — required for RE to display the tile (and to size its iframe).
-   Once the host is ready, we grab the user's identity token and load live rows. */
+/* SKY Add-in handshake (unchanged) */
 (function () {
   showStatus('Loading the live EWMC numbers…',
             'Attempting to verify that you are running this inside RE NXT.');
@@ -620,7 +675,7 @@ function loadLive(uit){
     var client = new BBSkyAddinClient.AddinClient({
       callbacks: {
         init: function (args) {
-         showStatus('Loading your EWMC numbers', 'Verifying your identity.');
+          showStatus('Loading your EWMC numbers', 'Verifying your identity.');
           args.ready({ showUI: true, title: "EWMC 2027 Scoreboard" });
           client.getUserIdentityToken().then(function (uit) {
             loadLive(uit);
@@ -637,7 +692,7 @@ function loadLive(uit){
       ]
     });
     window._bbAddin = client;
-   } catch (e) {
+  } catch (e) {
     showError('Add-in failed to start', String(e));
   }
 })();
