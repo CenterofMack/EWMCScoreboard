@@ -138,6 +138,7 @@
   .ep-fields{display:flex;flex-direction:column;gap:12px;}
   .ep-f{display:flex;flex-direction:column;gap:4px;}
   .ep-f label{font-size:12px;font-weight:700;color:var(--edit);}
+  .ep-f label .hint{font-weight:400;font-style:italic;color:var(--ink-soft);}
   .ep-f input,.ep-f select,.ep-f textarea{font:inherit;font-size:13px;color:var(--ink);background:#fff;border:1px solid #c5d6ec;border-radius:7px;padding:8px 10px;width:100%;}
   .ep-f input:focus,.ep-f select:focus,.ep-f textarea:focus{outline:none;border-color:var(--edit);box-shadow:0 0 0 3px rgba(47,85,151,.14);}
   .ep-f textarea{resize:vertical;min-height:54px;}
@@ -277,7 +278,7 @@ const BLUE=[
   {k:"tgt",  t:"Target Sponsorship Level", type:"tier"},
   {k:"lk",   t:"Sponsorship Likelihood",   type:"lk"},
   {k:"lvl",  t:"Sponsorship Level",        type:"tier"},
-  {k:"samt", t:"Sponsorship Amount",       type:"money"},
+  {k:"samt", t:"Sponsorship Amount",       type:"money", hint:"(only add if different than Sponsorship Level)"},
   {k:"sname",t:"Sponsoring Name",          type:"text"},
   {k:"inv",  t:"Invoice Created",          type:"yn"},
   {k:"guests",t:"Projected # Guests",      type:"num"},
@@ -515,7 +516,7 @@ function buildEditor(i){
     else             v = (r[f.k]===""||r[f.k]==null)?"—":r[f.k];
     return `<div class="ep-cx"><span class="l">${f.t}</span><span class="v">${esc(v)}</span></div>`;
   }).join("");
-  const fields=BLUE.map(f=>`<div class="ep-f"><label>${f.t}</label>${fieldInput(f,r)}</div>`).join("");
+  const fields=BLUE.map(f=>`<div class="ep-f"><label>${f.t}${f.hint?` <span class="hint">${f.hint}</span>`:""}</label>${fieldInput(f,r)}</div>`).join("");
   return `<div class="ep-context">${cx}</div>`+
          `<div class="ep-note">↑ read-only from RE · fields below write back</div>`+
          `<div class="ep-fields">${fields}</div>`+
