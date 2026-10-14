@@ -231,7 +231,7 @@
         <div class="body" id="d-pl"></div>
       </details>
       <details>
-        <summary><span class="sw seg-sp"></span><span class="st">Speculative, no pledge yet<small>Sponsorship Amount if entered, otherwise Target Level</small></span><span class="sv"><span id="s-sp">$0</span><small id="l-sp-p">0%</small></span><span class="chev">›</span></summary>
+        <summary><span class="sw seg-sp"></span><span class="st">Speculative, no pledge yet<small>Amount if entered, otherwise Sponsorship Level, otherwise Target Level</small></span><span class="sv"><span id="s-sp">$0</span><small id="l-sp-p">0%</small></span><span class="chev">›</span></summary>
         <div class="body" id="d-sp"></div>
       </details>
       <details class="attn" id="attn-box">
@@ -379,12 +379,12 @@ function recompute(){
       if(owed>0){pledged+=owed;plList.push({label:dispName(r),note:r.lvl.replace(/\s*\(.*\)/,""),amt:owed});}
     }
 
-    // SPECULATIVE — marked Speculative: Sponsorship Amount if typed, else Target level, else Sponsorship Level
+    // SPECULATIVE — marked Speculative: Sponsorship Amount if entered, else Sponsorship Level, else Target level
     if(r.lk==="Speculative"){
       let amt=0,src="";
       if(!isBlank(r.samt)){amt=samt;src="amount entered";}
-      else if(TIER_AMT[r.tgt]){amt=TIER_AMT[r.tgt];src="target: "+r.tgt.replace(/\s*\(.*\)/,"");}
       else if(TIER_AMT[r.lvl]){amt=TIER_AMT[r.lvl];src="level: "+r.lvl.replace(/\s*\(.*\)/,"");}
+      else if(TIER_AMT[r.tgt]){amt=TIER_AMT[r.tgt];src="target: "+r.tgt.replace(/\s*\(.*\)/,"");}
       amt=Math.max(0,amt-door);
       if(amt>0){spec+=amt;spList.push({label:dispName(r),note:src,amt});}
     }
