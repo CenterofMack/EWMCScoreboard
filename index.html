@@ -83,6 +83,16 @@
   .li b{font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;}
   .li.tot{border-top:2px dotted #9fb6d3;border-bottom:none;margin-top:4px;padding-top:8px;}
   .li.tot span{color:var(--navy);font-weight:600;}
+  .fs details.subd{background:none;border:none;border-radius:0;overflow:visible;}
+  .fs details.subd:hover{box-shadow:none;}
+  .fs details.subd > summary.li{padding:6px 0;cursor:pointer;}
+  .fs details.subd > summary.li:hover{background:none;}
+  .fs details.subd[open] > summary.li{background:none;border-bottom:1px dotted #c9d6e6;}
+  .fs details.subd > summary.li span{color:var(--ink);font-weight:500;}
+  .schev{font-style:normal;display:inline-block;width:14px;color:var(--blue);transition:transform .2s;}
+  .fs details.subd[open] .schev{transform:rotate(90deg);}
+  .subbody{margin:0 0 4px 14px;padding-left:10px;border-left:2px dotted #9fb6d3;}
+  .subbody .li{font-size:12.5px;}
   .fs .empty{font-size:12.5px;color:#9aa3b2;font-style:italic;padding:6px 0;}
   .fs details.attn{border-color:#e7c9c1;}
   .fs details.attn .st{color:var(--dead);}
@@ -357,6 +367,13 @@ const dispName=r=>(r.sname&&String(r.sname).trim())?String(r.sname).trim():r.nam
 function isConfirmed(r){return String(r.lk||"").indexOf("Confirmed")===0;}
 function isOfficial(r){return isConfirmed(r) && r.lvl!=="" && r.lvl!=="Additional Donation";}
 
+// a line that opens to show who's in it
+function sub(label,total,items){
+  const inner=items.length
+    ? items.map(x=>`<div class="li"><span>${esc(x.label)}${x.note?`<em>${esc(x.note)}</em>`:""}</span><b>${usd(x.amt)}</b></div>`).join("")
+    : `<div class="empty">Nothing in yet.</div>`;
+  return `<details class="subd"><summary class="li"><span><i class="schev">›</i>${esc(label)}</span><b>${usd(total)}</b></summary><div class="subbody">${inner}</div></details>`;
+}
 function lines(items, totalLabel, total){
   if(!items.length) return `<div class="empty">Nothing here yet.</div>`;
   return items.map(x=>`<div class="li"><span>${esc(x.label)}${x.note?`<em>${esc(x.note)}</em>`:""}</span><b>${usd(x.amt)}</b></div>`).join("")+
@@ -365,14 +382,14 @@ function lines(items, totalLabel, total){
 
 function recompute(){
   let inSpons=0,addl=0,attn=0,pledged=0,spec=0,offCount=0,offAmt=0;
-  const plList=[],spList=[],attnList=[];
+  const plList=[],spList=[],attnList=[],inSpList=[],addlList=[];
   data.forEach(r=>{
     const door=num(r.door),samt=num(r.samt),pledge=num(r.pledge);
     const confirmed=isConfirmed(r),hasLvl=r.lvl!=="",isAddl=r.lvl==="Additional Donation";
 
     // IN THE DOOR — same rules as before
-    if(confirmed&&hasLvl&&!isAddl){inSpons+=door;}
-    if(isAddl){addl+=door;}
+    if(confirmed&&hasLvl&&!isAddl){inSpons+=door; if(door>0) inSpList.push({label:dispName(r),note:r.lvl.replace(/\s*\(.*\)/,""),amt:door});}
+    if(isAddl){addl+=door; if(door>0) addlList.push({label:dispName(r),amt:door});}
 
     // PLEDGED, NOT YET IN — confirmed rows: the larger of Sponsorship Amount / RE pledge, less what's in the door
     if(confirmed&&hasLvl){
@@ -395,6 +412,7 @@ function recompute(){
 
     if(isOfficial(r)){offCount++;offAmt+= isBlank(r.samt) ? (TIER_AMT[r.lvl]||0) : samt;}
   });
+  inSpList.sort((a,b)=>b.amt-a.amt); addlList.sort((a,b)=>b.amt-a.amt);
   plList.sort((a,b)=>b.amt-a.amt); spList.sort((a,b)=>b.amt-a.amt); attnList.sort((a,b)=>b.amt-a.amt);
 
   const inDoor=inSpons+addl+TICKETS;
@@ -420,8 +438,8 @@ function recompute(){
   // financial summary drop-downs
   S("s-in",usd(inDoor)); S("s-pl",usd(pledged)); S("s-sp",usd(spec)); S("s-attn",usd(attn));
   document.getElementById("d-in").innerHTML=
-    `<div class="li"><span>Sponsorships</span><b>${usd(inSpons)}</b></div>`+
-    `<div class="li"><span>Additional donations</span><b>${usd(addl)}</b></div>`+
+    sub("Sponsorships",inSpons,inSpList)+
+    sub("Additional donations",addl,addlList)+
     `<div class="li"><span>Ticket sales</span><b>${usd(TICKETS)}</b></div>`+
     `<div class="li tot"><span>Total in the door</span><b>${usd(inDoor)}</b></div>`;
   document.getElementById("d-pl").innerHTML=lines(plList,"Total pledged, not yet in",pledged);
